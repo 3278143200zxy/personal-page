@@ -60,7 +60,7 @@
 
                     const a = document.createElement('a');
                     a.href = item.page;
-                    a.target = '_blank'; // 新标签打开
+                    // 这里没有设置 target，点击默认当前页跳转
 
                     const img = document.createElement('img');
                     img.src = item.image;
