@@ -10,6 +10,11 @@
     "page": "content/FlyingBee/page.html"
   },
   {
+    "folder": "Implant",
+    "image": "content/Implant/image.png",
+    "page": "content/Implant/page.html"
+  },
+  {
     "folder": "MissionarySimulator",
     "image": "content/MissionarySimulator/image.png",
     "page": "content/MissionarySimulator/page.html"
