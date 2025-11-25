@@ -9,6 +9,8 @@
             max-width: 960px;
             margin: 20px auto;
             padding: 0 10px;
+            background: #000;       /* 背景黑色 */
+            color: #fff;            /* 全局文字白色 */
         }
 
         /* 顶部标题区域 */
@@ -26,8 +28,9 @@
         }
 
         .header-title {
-            font-size: 2.2em;    /* 标题变大 */
+            font-size: 2.2em;
             font-weight: bold;
+            color: #fff;         /* 标题白色 */
         }
 
         /* 作品区域 */
@@ -39,7 +42,7 @@
         }
 
         .gallery-item {
-            width: calc((100% - 40px) / 3); /* 三列布局 */
+            width: calc((100% - 40px) / 3);
             cursor: pointer;
             text-align: center;
         }
@@ -51,13 +54,13 @@
             object-position: center;
             display: block;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(255,255,255,0.3); /* 白色阴影更适合黑背景 */
         }
 
         .caption {
             margin-top: 6px;
             font-size: 0.9em;
-            color: #555;
+            color: #ddd;         /* 字体偏灰，让视觉更柔和 */
             user-select: none;
         }
     </style>
@@ -67,7 +70,6 @@
     <!-- 顶部：Logo + 标题 -->
     <div class="header">
         <img src="logo.png" alt="logo">
-
         <div class="header-title">mofox</div>
     </div>
 
