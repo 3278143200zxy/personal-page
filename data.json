@@ -1,5 +1,10 @@
 [
   {
+    "folder": "EndlessSoul",
+    "image": "content/EndlessSoul/image.png",
+    "page": "content/EndlessSoul/page.html"
+  },
+  {
     "folder": "FlyingBee",
     "image": "content/FlyingBee/image.png",
     "page": "content/FlyingBee/page.html"
