@@ -60,7 +60,6 @@
 
                     const a = document.createElement('a');
                     a.href = item.page;
-                    // 这里没有设置 target，点击默认当前页跳转
 
                     const img = document.createElement('img');
                     img.src = item.image;
@@ -69,6 +68,26 @@
                     const caption = document.createElement('div');
                     caption.className = 'caption';
                     caption.textContent = item.folder;
+
+                    // 点击事件，先缩放，瞬间复原，然后跳转
+                    a.addEventListener('click', function(e) {
+                        e.preventDefault();  // 阻止默认跳转
+
+                        // 先给图片加放大效果
+                        img.style.transition = 'transform 0.2s ease';
+                        img.style.transform = 'scale(1.2)';
+
+                        // 使用 requestAnimationFrame 让浏览器强制渲染样式变更
+                        requestAnimationFrame(() => {
+                            // 立即复原缩放
+                            img.style.transform = 'scale(1)';
+                        });
+
+                        // 200ms 后跳转页面
+                        setTimeout(() => {
+                            window.location.href = a.href;
+                        }, 200);
+                    });
 
                     a.appendChild(img);
                     div.appendChild(a);
