@@ -1,17 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <title>我的视频网页</title>
+    <meta charset="utf-8" />
+    <title>溪尧 朱</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 960px;
+            margin: 20px auto;
+            padding: 0 10px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .gallery-item {
+            width: calc((100% - 40px) / 3); /* 三列布局，左右间距共40px */
+            cursor: pointer;
+        }
+        .gallery-item img {
+            width: 100%;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+        .gallery-item img:hover {
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body>
 
-    <h1>点击播放视频</h1>
+    <h1>溪尧 朱</h1>
 
-    <video width="720" controls>
-        <source src="video.mp4" type="video/mp4">
-        您的浏览器不支持 video 标签。
-    </video>
+    <div class="gallery" id="gallery"></div>
+
+    <script>
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                const gallery = document.getElementById('gallery');
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'gallery-item';
+
+                    const a = document.createElement('a');
+                    a.href = item.page;
+                    a.target = '_blank'; // 新标签打开
+
+                    const img = document.createElement('img');
+                    img.src = item.image;
+                    img.alt = item.folder;
+
+                    a.appendChild(img);
+                    div.appendChild(a);
+                    gallery.appendChild(div);
+                });
+            })
+            .catch(err => {
+                console.error('加载data.json失败:', err);
+            });
+    </script>
 
 </body>
 </html>
