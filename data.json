@@ -3,5 +3,10 @@
     "folder": "FlyingBee",
     "image": "content/FlyingBee/image.png",
     "page": "content/FlyingBee/page.html"
+  },
+  {
+    "folder": "MissionarySimulator",
+    "image": "content/MissionarySimulator/image.png",
+    "page": "content/MissionarySimulator/page.html"
   }
 ]
