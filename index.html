@@ -9,8 +9,8 @@
             max-width: 960px;
             margin: 20px auto;
             padding: 0 10px;
-            background: #000;       /* 背景黑色 */
-            color: #fff;            /* 全局文字白色 */
+            background: #222;       /* 灰色背景 */
+            color: #fff;            /* 白色文字 */
         }
 
         /* 顶部标题区域 */
@@ -22,15 +22,14 @@
         }
 
         .header img {
-            width: 100px;        /* 可调整大小 */
-            height: auto;        /* 不裁剪，完整展示 */
+            width: 100px;        /* logo自己控制 */
+            height: auto;        /* 不裁剪 */
             display: block;
         }
 
         .header-title {
             font-size: 2.2em;
             font-weight: bold;
-            color: #fff;         /* 标题白色 */
         }
 
         /* 作品区域 */
@@ -42,7 +41,7 @@
         }
 
         .gallery-item {
-            width: calc((100% - 40px) / 3);
+            width: calc((100% - 40px) / 3); 
             cursor: pointer;
             text-align: center;
         }
@@ -54,26 +53,33 @@
             object-position: center;
             display: block;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(255,255,255,0.3); /* 白色阴影更适合黑背景 */
+            box-shadow: 0 2px 5px rgba(255,255,255,0.2);
+
+            /* 恢复鼠标缩放 */
+            transition: transform 0.2s ease;
+        }
+
+        .gallery-item img:hover {
+            transform: scale(1.05);
         }
 
         .caption {
             margin-top: 6px;
             font-size: 0.9em;
-            color: #ddd;         /* 字体偏灰，让视觉更柔和 */
+            color: #ddd;
             user-select: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- 顶部：Logo + 标题 -->
+    <!-- 顶部 Logo + 标题 -->
     <div class="header">
         <img src="logo.png" alt="logo">
         <div class="header-title">mofox</div>
     </div>
 
-    <!-- 摄影作品列表 -->
+    <!-- 内容展示区 -->
     <div class="gallery" id="gallery"></div>
 
     <script>
