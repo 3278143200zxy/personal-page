@@ -18,19 +18,19 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            justify-content: flex-start; /* 不满3个靠左 */
+            justify-content: flex-start;
         }
         .gallery-item {
-            width: calc((100% - 40px) / 3); /* 三列布局 */
+            width: calc((100% - 40px) / 3);
             cursor: pointer;
-            text-align: center; /* 文字居中 */
+            text-align: center;
         }
         .gallery-item img {
             width: 100%;
             display: block;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease; /* 鼠标悬浮平滑缩放 */
         }
         .gallery-item img:hover {
             transform: scale(1.05);
@@ -69,24 +69,21 @@
                     caption.className = 'caption';
                     caption.textContent = item.folder;
 
-                    // 点击事件，先缩放，瞬间复原，然后跳转
                     a.addEventListener('click', function(e) {
-                        e.preventDefault();  // 阻止默认跳转
+                        e.preventDefault();
 
-                        // 先给图片加放大效果
-                        img.style.transition = 'transform 0.2s ease';
+                        // 取消过渡，瞬间放大
+                        img.style.transition = 'none';
                         img.style.transform = 'scale(1.2)';
 
-                        // 使用 requestAnimationFrame 让浏览器强制渲染样式变更
-                        requestAnimationFrame(() => {
-                            // 立即复原缩放
-                            img.style.transform = 'scale(1)';
-                        });
-
-                        // 200ms 后跳转页面
+                        // 立刻恢复默认过渡和大小
                         setTimeout(() => {
-                            window.location.href = a.href;
-                        }, 200);
+                            img.style.transition = 'transform 0.2s ease';
+                            img.style.transform = 'scale(1)';
+                        }, 0);
+
+                        // 立即跳转页面
+                        window.location.href = a.href;
                     });
 
                     a.appendChild(img);
