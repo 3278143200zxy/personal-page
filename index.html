@@ -60,6 +60,7 @@
 
                     const a = document.createElement('a');
                     a.href = item.page;
+                    // 这里没有设置 target，点击默认当前页跳转
 
                     const img = document.createElement('img');
                     img.src = item.image;
@@ -68,12 +69,6 @@
                     const caption = document.createElement('div');
                     caption.className = 'caption';
                     caption.textContent = item.folder;
-
-                    // 这里点击直接跳转，无放大动画
-                    a.addEventListener('click', function(e) {
-                        // 不阻止默认，直接跳转
-                        // 也可以省略这个事件监听
-                    });
 
                     a.appendChild(img);
                     div.appendChild(a);
