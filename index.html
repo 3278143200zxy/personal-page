@@ -9,8 +9,8 @@
             max-width: 960px;
             margin: 20px auto;
             padding: 0 10px;
-            background: #222;       /* 灰色背景 */
-            color: #fff;            /* 白色文字 */
+            background: #333;      /* 更浅的灰色 */
+            color: #f0f0f0;        /* 更柔和的文字颜色 */
         }
 
         /* 顶部标题区域 */
@@ -18,18 +18,31 @@
             display: flex;
             align-items: center;
             gap: 20px;
-            margin-bottom: 40px;
+            margin-bottom: 30px;      /* 缩小与作品区的间距 */
+            margin-top: -10px;        /* 整体稍微上移 */
         }
 
         .header img {
-            width: 100px;        /* logo自己控制 */
-            height: auto;        /* 不裁剪 */
+            width: 100px;
+            height: auto;
             display: block;
         }
 
+        .header-title-block {
+            display: flex;
+            flex-direction: column;
+        }
+
         .header-title {
-            font-size: 2.2em;
+            font-size: 2.3em;
             font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .header-subtitle {
+            font-size: 0.95em;
+            opacity: 0.9;
+            user-select: none;
         }
 
         /* 作品区域 */
@@ -41,7 +54,7 @@
         }
 
         .gallery-item {
-            width: calc((100% - 40px) / 3); 
+            width: calc((100% - 40px) / 3);
             cursor: pointer;
             text-align: center;
         }
@@ -54,8 +67,6 @@
             display: block;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(255,255,255,0.2);
-
-            /* 恢复鼠标缩放 */
             transition: transform 0.2s ease;
         }
 
@@ -76,7 +87,12 @@
     <!-- 顶部 Logo + 标题 -->
     <div class="header">
         <img src="logo.png" alt="logo">
-        <div class="header-title">mofox</div>
+        <div class="header-title-block">
+            <div class="header-title">mofox</div>
+            <div class="header-subtitle">
+			Programmer, Producer, and above all, a Gamer — making and playing games is a lifelong passion.
+            </div>
+        </div>
     </div>
 
     <!-- 内容展示区 -->
