@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8" />
-    <title>溪尧 朱</title>
+    <title>mofox</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,11 +18,12 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            justify-content: center;
+            justify-content: flex-start; /* 不满3个靠左 */
         }
         .gallery-item {
-            width: calc((100% - 40px) / 3); /* 三列布局，左右间距共40px */
+            width: calc((100% - 40px) / 3); /* 三列布局 */
             cursor: pointer;
+            text-align: center; /* 文字居中 */
         }
         .gallery-item img {
             width: 100%;
@@ -34,11 +35,17 @@
         .gallery-item img:hover {
             transform: scale(1.05);
         }
+        .caption {
+            margin-top: 6px;
+            font-size: 0.9em;
+            color: #555;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
 
-    <h1>溪尧 朱</h1>
+    <h1>mofox</h1>
 
     <div class="gallery" id="gallery"></div>
 
@@ -59,8 +66,13 @@
                     img.src = item.image;
                     img.alt = item.folder;
 
+                    const caption = document.createElement('div');
+                    caption.className = 'caption';
+                    caption.textContent = item.folder;
+
                     a.appendChild(img);
                     div.appendChild(a);
+                    div.appendChild(caption);
                     gallery.appendChild(div);
                 });
             })
