@@ -27,6 +27,9 @@
         }
         .gallery-item img {
             width: 100%;
+            aspect-ratio: 16 / 9;       /* 固定16:9比例 */
+            object-fit: cover;          /* 裁剪填满，保持比例 */
+            object-position: center;    /* 从中心裁剪 */
             display: block;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -60,7 +63,7 @@
 
                     const a = document.createElement('a');
                     a.href = item.page;
-                    // 这里没有设置 target，点击默认当前页跳转
+                    // 点击默认当前页跳转，无 target="_blank"
 
                     const img = document.createElement('img');
                     img.src = item.image;
