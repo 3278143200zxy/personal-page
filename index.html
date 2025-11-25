@@ -9,35 +9,48 @@
             max-width: 960px;
             margin: 20px auto;
             padding: 0 10px;
+            overflow-y: auto;    /* 页面可以上下滚动 */
         }
+
+        /* 左上角独立固定图 */
+        .top-left-logo {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 120px;
+            height: 70px;
+            background: url("logo.png") center center / cover no-repeat;
+            border-radius: 6px;
+            z-index: 999;
+        }
+
         h1 {
             text-align: center;
-            margin-bottom: 40px;
+            margin: 120px 0 40px 0; /* 下推避免被左上角图遮住 */
         }
+
         .gallery {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: flex-start; /* 不满3个靠左 */
         }
+
         .gallery-item {
             width: calc((100% - 40px) / 3); /* 三列布局 */
-            cursor: pointer;
-            text-align: center; /* 文字居中 */
+            text-align: center;
         }
+
         .gallery-item img {
             width: 100%;
-            aspect-ratio: 16 / 9;       /* 固定16:9比例 */
-            object-fit: cover;          /* 裁剪填满，保持比例 */
-            object-position: center;    /* 从中心裁剪 */
+            aspect-ratio: 16 / 9;      /* 固定比例 */
+            object-fit: cover;         /* 自动裁剪填满 */
+            object-position: center;   /* 居中裁剪 */
             display: block;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease;
         }
-        .gallery-item img:hover {
-            transform: scale(1.05);
-        }
+
         .caption {
             margin-top: 6px;
             font-size: 0.9em;
@@ -47,6 +60,9 @@
     </style>
 </head>
 <body>
+
+    <!-- 左上角固定图片 -->
+    <div class="top-left-logo"></div>
 
     <h1>mofox</h1>
 
@@ -62,8 +78,7 @@
                     div.className = 'gallery-item';
 
                     const a = document.createElement('a');
-                    a.href = item.page;
-                    // 点击默认当前页跳转，无 target="_blank"
+                    a.href = item.page;    // 点击跳转
 
                     const img = document.createElement('img');
                     img.src = item.image;
