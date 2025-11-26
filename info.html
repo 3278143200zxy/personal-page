@@ -4,19 +4,14 @@
     <meta charset="utf-8" />
     <title>作品详情</title>
     <style>
-        /* 全局重置 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        /* 顶部黑色固定导航条 */
         .topbar {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 60px;
             background: #000;
             display: flex;
@@ -26,7 +21,6 @@
             border-bottom: 1px solid #111;
             z-index: 9999;
         }
-
         .topbar img {
             height: 48px;
             width: auto;
@@ -35,44 +29,38 @@
             line-height: 0;
             vertical-align: middle;
         }
-
         body {
             font-family: Arial, sans-serif;
             background: #222;
             color: #eee;
-            padding-top: 60px; /* 预留导航栏空间 */
+            padding-top: 60px;
             max-width: 700px;
             margin: 0 auto;
             padding-left: 15px;
             padding-right: 15px;
         }
-
-        /* 标题放左，字体大小不变 */
         h1 {
-            font-size: 3em;          /* 放大字体 */
+            font-size: 3em;
             margin-top: 15px;
             margin-bottom: 10px;
-            text-align: left;        /* 靠左 */
-            text-transform: none;    /* 禁止自动大小写转换 */
+            text-align: left;
+            text-transform: none; /* 禁止自动大小写转换 */
         }
-
         img.cover {
-            width: 70vw;               /* 缩小到0.7倍宽度 */
+            width: 70vw;
             max-width: 100%;
-            border-radius: 0;          /* 去掉圆角 */
+            border-radius: 0;
             margin-left: auto;
             margin-right: auto;
             display: block;
             box-shadow: none;
         }
-
         p.description {
             font-size: 1.1em;
             line-height: 1.5;
             white-space: pre-wrap;
             margin-top: 15px;
         }
-
         .back-link {
             margin-top: 30px;
             display: inline-block;
@@ -84,59 +72,58 @@
 </head>
 <body>
 
-    <div class="topbar">
-        <img src="logo.png" alt="logo" />
-    </div>
+<div class="topbar">
+    <img src="logo.png" alt="logo" />
+</div>
 
-    <!-- 图片放前面 -->
-    <img id="cover" class="cover" src="" alt="封面图片" />
+<img id="cover" class="cover" src="" alt="封面图片" />
 
-    <!-- 标题靠左 -->
-    <h1 id="title">加载中...</h1>
+<h1 id="title">加载中...</h1>
 
-    <p class="description" id="description"></p>
+<p class="description" id="description"></p>
 
-    <a href="index.html" class="back-link">← 返回作品集</a>
+<a href="index.html" class="back-link">← 返回作品集</a>
 
-    <script>
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
+<script>
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    async function loadInfo(folder) {
+        if (!folder) {
+            document.getElementById('title').textContent = "未指定作品文件夹";
+            document.getElementById('description').textContent = "请从主页点击作品进入详情页面。";
+            document.getElementById('cover').style.display = 'none';
+            return;
         }
 
-        async function loadInfo(folder) {
-            if (!folder) {
-                document.getElementById('title').textContent = "未指定作品文件夹";
-                document.getElementById('description').textContent = "请从主页点击作品进入详情页面。";
-                document.getElementById('cover').style.display = 'none';
-                return;
-            }
+        const infoJsonPath = `content/${folder}/info.json`;
 
-            const infoJsonPath = `content/${folder}/info.json`;
+        try {
+            const response = await fetch(infoJsonPath);
+            if (!response.ok) throw new Error('未找到info.json');
+            const info = await response.json();
 
-            try {
-                const response = await fetch(infoJsonPath);
-                if (!response.ok) throw new Error('未找到info.json');
-                const info = await response.json();
+            // 直接赋值，不做任何大小写转换
+            document.getElementById('title').textContent = info.title || folder;
+            document.getElementById('cover').src = info.image || '';
+            document.getElementById('cover').alt = info.title || folder;
+            document.getElementById('cover').style.display = 'block';
+            document.getElementById('description').textContent = info.description || '无描述内容';
 
-                document.getElementById('title').textContent = info.title || folder;
-                document.getElementById('cover').src = info.image || '';
-                document.getElementById('cover').alt = info.title || folder;
-                document.getElementById('cover').style.display = 'block';
-                document.getElementById('description').textContent = info.description || '无描述内容';
-
-            } catch (e) {
-                document.getElementById('title').textContent = "加载失败";
-                document.getElementById('description').textContent = `无法加载作品信息：${e.message}`;
-                document.getElementById('cover').style.display = 'none';
-            }
+        } catch (e) {
+            document.getElementById('title').textContent = "加载失败";
+            document.getElementById('description').textContent = `无法加载作品信息：${e.message}`;
+            document.getElementById('cover').style.display = 'none';
         }
+    }
 
-        window.onload = () => {
-            const folder = getQueryParam('folder');
-            loadInfo(folder);
-        };
-    </script>
+    window.onload = () => {
+        const folder = getQueryParam('folder');
+        loadInfo(folder);
+    };
+</script>
 
 </body>
 </html>
