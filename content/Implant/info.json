@@ -1,6 +1,8 @@
 {
   "title": "Implant",
   "image": "content/Implant/image.png",
-  "gallery": [],
+  "gallery": [
+    "content/Implant/gallery/image.png"
+  ],
   "description": ""
 }
