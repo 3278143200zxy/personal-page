@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <title>作品详情</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 0 15px;
+            background: #222;
+            color: #eee;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(255,255,255,0.2);
+        }
+        p.description {
+            font-size: 1.1em;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .back-link {
+            margin-top: 30px;
+            display: inline-block;
+            color: #aaf;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="title">加载中...</h1>
+    <img id="cover" src="" alt="封面图片" />
+    <p class="description" id="description"></p>
+
+    <a href="index.html" class="back-link">← 返回作品集</a>
+
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        async function loadInfo(folder) {
+            if (!folder) {
+                document.getElementById('title').textContent = "未指定作品文件夹";
+                document.getElementById('description').textContent = "请从主页点击作品进入详情页面。";
+                document.getElementById('cover').style.display = 'none';
+                return;
+            }
+            const infoJsonPath = `content/${folder}/info.json`;
+
+            try {
+                const response = await fetch(infoJsonPath);
+                if (!response.ok) throw new Error('未找到info.json');
+                const info = await response.json();
+
+                document.getElementById('title').textContent = info.title || folder;
+                document.getElementById('cover').src = info.image || '';
+                document.getElementById('cover').alt = info.title || folder;
+                document.getElementById('cover').style.display = 'block';
+                document.getElementById('description').textContent = info.description || '无描述内容';
+
+            } catch (e) {
+                document.getElementById('title').textContent = "加载失败";
+                document.getElementById('description').textContent = `无法加载作品信息：${e.message}`;
+                document.getElementById('cover').style.display = 'none';
+            }
+        }
+
+        window.onload = () => {
+            const folder = getQueryParam('folder');
+            loadInfo(folder);
+        };
+    </script>
+
+</body>
+</html>

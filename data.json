@@ -1,22 +1,21 @@
-[
-  {
-    "folder": "EndlessSoul",
-    "image": "content/EndlessSoul/image.png",
-    "page": "content/EndlessSoul/page.html"
-  },
-  {
-    "folder": "FlyingBee",
-    "image": "content/FlyingBee/image.png",
-    "page": "content/FlyingBee/page.html"
-  },
-  {
-    "folder": "Implant",
-    "image": "content/Implant/image.png",
-    "page": "content/Implant/page.html"
-  },
-  {
-    "folder": "MissionarySimulator",
-    "image": "content/MissionarySimulator/image.png",
-    "page": "content/MissionarySimulator/page.html"
-  }
-]
+{
+  "infoPage": "info.html",
+  "items": [
+    {
+      "folder": "EndlessSoul",
+      "image": "content/EndlessSoul/image.png"
+    },
+    {
+      "folder": "FlyingBee",
+      "image": "content/FlyingBee/image.png"
+    },
+    {
+      "folder": "Implant",
+      "image": "content/Implant/image.png"
+    },
+    {
+      "folder": "MissionarySimulator",
+      "image": "content/MissionarySimulator/image.png"
+    }
+  ]
+}

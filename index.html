@@ -12,8 +12,6 @@
             background: #333;
             color: #f0f0f0;
         }
-
-        /* 顶部标题区域 */
         .header {
             display: flex;
             align-items: center;
@@ -21,31 +19,25 @@
             margin-bottom: 30px;
             margin-top: -10px;
         }
-
         .header img {
             width: 100px;
             height: auto;
             display: block;
         }
-
         .header-title-block {
             display: flex;
             flex-direction: column;
         }
-
         .header-title {
             font-size: 2.3em;
             font-weight: bold;
             margin-bottom: 6px;
         }
-
         .header-subtitle {
             font-size: 0.95em;
             opacity: 0.9;
             user-select: none;
         }
-
-        /* 新增的作品集标题 */
         .portfolio-title {
             text-align: center;
             font-size: 1.2em;
@@ -54,22 +46,17 @@
             user-select: none;
             color: #ddd;
         }
-
-        /* 作品区域 */
         .gallery {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: flex-start;
         }
-
-        /* ★ 每行两个 ★ */
         .gallery-item {
             width: calc((100% - 20px) / 2);
             cursor: pointer;
             text-align: center;
         }
-
         .gallery-item img {
             width: 100%;
             aspect-ratio: 16 / 9;
@@ -80,19 +67,15 @@
             box-shadow: 0 2px 5px rgba(255,255,255,0.2);
             transition: transform 0.2s ease;
         }
-
         .gallery-item img:hover {
             transform: scale(1.05);
         }
-
         .caption {
             margin-top: 6px;
             font-size: 0.9em;
             color: #ddd;
             user-select: none;
         }
-
-        /* 可选：手机上自动变成一列 */
         @media (max-width: 600px) {
             .gallery-item {
                 width: 100%;
@@ -102,7 +85,6 @@
 </head>
 <body>
 
-    <!-- 顶部 Logo + 标题 -->
     <div class="header">
         <img src="logo.png" alt="logo">
         <div class="header-title-block">
@@ -113,10 +95,8 @@
         </div>
     </div>
 
-    <!-- 作品集小标题 -->
     <div class="portfolio-title">-Portfolio-</div>
 
-    <!-- 内容展示区 -->
     <div class="gallery" id="gallery"></div>
 
     <script>
@@ -124,12 +104,14 @@
             .then(response => response.json())
             .then(data => {
                 const gallery = document.getElementById('gallery');
-                data.forEach(item => {
+                const infoPage = data.infoPage || 'info.html';
+                data.items.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'gallery-item';
 
                     const a = document.createElement('a');
-                    a.href = item.page;
+                    const folderEncoded = encodeURIComponent(item.folder);
+                    a.href = `${infoPage}?folder=${folderEncoded}`;
 
                     const img = document.createElement('img');
                     img.src = item.image;
