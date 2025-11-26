@@ -63,8 +63,9 @@
             justify-content: flex-start;
         }
 
+        /* ★ 每行两个 ★ */
         .gallery-item {
-            width: calc((100% - 40px) / 3);
+            width: calc((100% - 20px) / 2);
             cursor: pointer;
             text-align: center;
         }
@@ -89,6 +90,13 @@
             font-size: 0.9em;
             color: #ddd;
             user-select: none;
+        }
+
+        /* 可选：手机上自动变成一列 */
+        @media (max-width: 600px) {
+            .gallery-item {
+                width: 100%;
+            }
         }
     </style>
 </head>
