@@ -77,7 +77,7 @@
         display: none;
         z-index: 25;
     }
-    /* 左右箭头 - 大图 */
+    /* 左右箭头 */
     .arrow {
         position: absolute;
         top: 50%;
@@ -99,63 +99,83 @@
     .left-arrow { left: 10px; }
     .right-arrow { right: 10px; }
 
-    /* 缩略图容器 */
+    /* 缩略图区域容器，包含遮罩和滑动内容 */
     .thumbs-wrapper {
         position: relative;
-        width: 460px; /* 6张缩略图宽度(6*75+5*8) */
-        margin: 12px auto 0 auto;
+        margin-top: 12px;
+        width: 100%;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
         user-select: none;
     }
+
+    /* 遮罩层 - 左右渐隐 */
+    .thumbs-mask-left, .thumbs-mask-right {
+        position: absolute;
+        top: 0;
+        width: 50px;
+        height: 65px; /* 缩略图高度 + 边框等 */
+        pointer-events: none; /* 不阻挡鼠标事件 */
+        z-index: 30;
+    }
+    .thumbs-mask-left {
+        left: 0;
+        background: linear-gradient(to right, #222 0%, transparent 100%);
+    }
+    .thumbs-mask-right {
+        right: 0;
+        background: linear-gradient(to left, #222 0%, transparent 100%);
+    }
+
+    /* 缩略图容器，overflow隐藏，水平滚动 */
     .thumbs-container {
+        overflow: hidden;
+        padding: 0 60px; /* 给左右箭头留空间 */
+    }
+    /* 实际滑动条，flex水平排列 */
+    .thumbs-track {
         display: flex;
         gap: 8px;
-        overflow: hidden;
-        width: 460px; /* 固定宽度 */
-        border-radius: 4px;
-        background: black;
+        transition: transform 0.3s ease;
     }
+
     .thumb {
-        flex: 0 0 75px;
+        width: 80px;
         height: 45px;
-        object-fit: cover;
+        background: black;
         border: 2px solid transparent;
         border-radius: 4px;
         cursor: pointer;
+        object-fit: cover;
+        flex-shrink: 0;
         transition: border-color 0.3s;
-        background: black;
-        box-sizing: border-box;
     }
     .thumb.selected {
         border-color: white;
     }
-    /* 缩略图箭头 */
-    .thumb-arrow {
+
+    /* 缩略图箭头，和大图箭头不冲突 */
+    .thumbs-arrow {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
         font-size: 30px;
         color: white;
         cursor: pointer;
+        padding: 6px 10px;
         user-select: none;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0,0,0,0.4);
         border-radius: 50%;
-        width: 32px;
-        height: 32px;
-        line-height: 32px;
-        text-align: center;
-        z-index: 30;
+        z-index: 40;
         transition: background-color 0.3s;
     }
-    .thumb-arrow:hover {
+    .thumbs-arrow:hover {
         background: rgba(255,255,255,0.3);
         color: #ccc;
     }
-    .thumb-left-arrow {
-        left: -40px;
-    }
-    .thumb-right-arrow {
-        right: -40px;
-    }
+    .thumbs-arrow-left { left: 5px; }
+    .thumbs-arrow-right { right: 5px; }
 
     p.description {
         font-size: 1.1em;
@@ -187,13 +207,20 @@
     <div class="arrow right-arrow" onclick="nextImage()">❯</div>
 </div>
 
-<!-- 缩略图环状导航 -->
+<!-- 缩略图区域容器 -->
 <div class="thumbs-wrapper">
-    <div class="thumb-arrow thumb-left-arrow" onclick="scrollThumbsLeft()">❮</div>
-    <div class="thumbs-container" id="thumbs-container">
-        <!-- 缩略图由JS动态生成 -->
+    <div class="thumbs-mask-left"></div>
+    <div class="thumbs-mask-right"></div>
+
+    <!-- 缩略图箭头 -->
+    <div class="thumbs-arrow thumbs-arrow-left" onclick="thumbsScrollLeft()">‹</div>
+    <div class="thumbs-arrow thumbs-arrow-right" onclick="thumbsScrollRight()">›</div>
+
+    <div class="thumbs-container">
+        <div class="thumbs-track" id="thumbs-track">
+            <!-- 缩略图由JS动态生成 -->
+        </div>
     </div>
-    <div class="thumb-arrow thumb-right-arrow" onclick="scrollThumbsRight()">❯</div>
 </div>
 
 <h1 id="title">加载中...</h1>
@@ -212,10 +239,11 @@
     let galleryIndex = 0;
     let folderName = "";
 
-    const THUMB_COUNT = 6; // 显示6张缩略图
-    const THUMB_WIDTH = 75 + 8; // 单个缩略图宽度 + 间距8px
+    // 缩略图显示数量限制
+    const THUMB_COUNT = 6;
 
-    let thumbStartIndex = 0; // 缩略图当前起始索引
+    // 当前缩略图滑动起始索引，指thumbsTrack里的第0张图对应galleryImages的索引
+    let thumbsStartIndex = 0;
 
     async function loadInfo(folder) {
         folderName = folder;
@@ -249,7 +277,7 @@
 
             if (galleryImages.length > 0) {
                 galleryIndex = 0;
-                thumbStartIndex = 0;
+                thumbsStartIndex = 0;
                 createThumbnails();
                 showImage();
             } else {
@@ -288,93 +316,138 @@
         };
         img.onerror = () => {
             hideLoading();
-            // 可添加错误处理显示
+            // 这里可以考虑显示默认错误图片或者提示
         };
 
         img.src = galleryImages[galleryIndex].startsWith('content/') 
             ? galleryImages[galleryIndex] 
             : `content/${folderName}/gallery/${galleryImages[galleryIndex]}`;
         img.alt = `作品图片 ${galleryIndex + 1} / ${galleryImages.length}`;
-
-        // 重新定位缩略图起始索引，确保当前图片在视野中间
-        thumbStartIndex = (galleryIndex - Math.floor(THUMB_COUNT / 2) + galleryImages.length) % galleryImages.length;
-        updateThumbnailsPosition();
     }
 
     function nextImage() {
         if (galleryImages.length === 0) return;
         galleryIndex = (galleryIndex + 1) % galleryImages.length;
+        adjustThumbsStartIndexAfterGalleryChange();
         showImage();
+        updateSelectedThumb();
     }
 
     function prevImage() {
         if (galleryImages.length === 0) return;
         galleryIndex = (galleryIndex - 1 + galleryImages.length) % galleryImages.length;
+        adjustThumbsStartIndexAfterGalleryChange();
         showImage();
-    }
-
-    // 生成所有缩略图（包含环状逻辑，确保数量足够）
-    function createThumbnails() {
-        const container = document.getElementById('thumbs-container');
-        container.innerHTML = '';
-
-        // 如果图片数不足6，复制补齐
-        let totalThumbs = Math.max(THUMB_COUNT, galleryImages.length);
-        for (let i = 0; i < totalThumbs; i++) {
-            const idx = i % galleryImages.length;
-            const thumbImg = document.createElement('img');
-            thumbImg.className = 'thumb';
-            thumbImg.src = galleryImages[idx].startsWith('content/')
-                ? galleryImages[idx]
-                : `content/${folderName}/gallery/${galleryImages[idx]}`;
-            thumbImg.alt = `缩略图 ${idx + 1}`;
-            thumbImg.dataset.index = idx;
-
-            thumbImg.onclick = () => {
-                galleryIndex = idx;
-                showImage();
-            };
-
-            container.appendChild(thumbImg);
-        }
         updateSelectedThumb();
-        updateThumbnailsPosition();
     }
 
-    // 更新缩略图白框高亮
+    // 调整缩略图起始索引，使当前galleryIndex始终显示在缩略图范围内（6个）
+    function adjustThumbsStartIndexAfterGalleryChange() {
+        // galleryImages数量小于等于显示数量，无需滑动
+        if (galleryImages.length <= THUMB_COUNT) {
+            thumbsStartIndex = 0;
+            updateThumbsTrackPosition();
+            return;
+        }
+        // 如果galleryIndex不在显示范围内，调整startIndex
+        let endIndex = (thumbsStartIndex + THUMB_COUNT - 1) % galleryImages.length;
+        if (!isIndexInRange(galleryIndex, thumbsStartIndex, endIndex)) {
+            thumbsStartIndex = galleryIndex;
+            updateThumbsTrackPosition();
+        }
+    }
+
+    // 判断index是否在环状范围[start, end]内
+    function isIndexInRange(index, start, end) {
+        if (start <= end) {
+            return index >= start && index <= end;
+        } else {
+            // 环绕情况
+            return index >= start || index <= end;
+        }
+    }
+
+    // 缩略图箭头点击向左滑动（看见右边后续图）
+    function thumbsScrollLeft() {
+        if (galleryImages.length === 0) return;
+        thumbsStartIndex = (thumbsStartIndex - 1 + galleryImages.length) % galleryImages.length;
+        updateThumbsTrackPosition();
+    }
+    // 缩略图箭头点击向右滑动（看见左边之前图）
+    function thumbsScrollRight() {
+        if (galleryImages.length === 0) return;
+        thumbsStartIndex = (thumbsStartIndex + 1) % galleryImages.length;
+        updateThumbsTrackPosition();
+    }
+
+    // 创建缩略图DOM及初始化位置
+    function createThumbnails() {
+        const track = document.getElementById('thumbs-track');
+        track.innerHTML = '';
+
+        // 缩略图数：总是生成THUMB_COUNT个，图片不够循环补齐
+        for (let i = 0; i < THUMB_COUNT; i++) {
+            const img = document.createElement('img');
+            img.className = 'thumb';
+            img.style.flexShrink = '0';
+            img.width = 80;
+            img.height = 45;
+            img.dataset.position = i;
+            img.onclick = () => {
+                // 计算点击的实际gallery index
+                const realIndex = (thumbsStartIndex + i) % galleryImages.length;
+                galleryIndex = realIndex;
+                showImage();
+                updateSelectedThumb();
+            };
+            track.appendChild(img);
+        }
+
+        updateThumbsTrackPosition();
+    }
+
+    // 更新缩略图内容和位置
+    function updateThumbsTrackPosition() {
+        const track = document.getElementById('thumbs-track');
+        const thumbs = track.children;
+
+        for (let i = 0; i < THUMB_COUNT; i++) {
+            const realIndex = (thumbsStartIndex + i) % galleryImages.length;
+            const thumb = thumbs[i];
+            thumb.src = galleryImages[realIndex].startsWith('content/')
+                ? galleryImages[realIndex]
+                : `content/${folderName}/gallery/${galleryImages[realIndex]}`;
+            thumb.alt = `缩略图 ${realIndex + 1}`;
+            thumb.dataset.index = realIndex;
+        }
+
+        // 计算偏移，滑动效果 (每张80px宽+8px间隙，总88px，滑动步长为88px)
+        // 这里通过transform滑动，实现平滑动画
+        // 显示区域固定，移动的是内容，方向相反
+        const translateX = 0; // 因为我们每次重置图片内容实现环状效果，不滑动transform
+        // 不滑动transform了，因为图片内容循环替换，避免复杂滑动
+        track.style.transform = `translateX(${translateX}px)`;
+
+        updateSelectedThumb();
+    }
+
+    // 根据galleryIndex更新缩略图高亮
     function updateSelectedThumb() {
-        const thumbs = document.querySelectorAll('.thumb');
-        thumbs.forEach(thumb => {
+        const track = document.getElementById('thumbs-track');
+        for (let i = 0; i < track.children.length; i++) {
+            const thumb = track.children[i];
             if (parseInt(thumb.dataset.index) === galleryIndex) {
                 thumb.classList.add('selected');
             } else {
                 thumb.classList.remove('selected');
             }
-        });
+        }
     }
 
-    // 控制缩略图容器向左滑动（负translateX）
-    function updateThumbnailsPosition() {
-        const container = document.getElementById('thumbs-container');
-        const totalThumbs = container.children.length;
-        // 计算偏移量 (thumbStartIndex * 单图宽度)
-        let offset = thumbStartIndex * THUMB_WIDTH;
-        // 为环状，限制offset最大值
-        offset = offset % (totalThumbs * THUMB_WIDTH);
-        // 负值向左移动
-        container.style.transform = `translateX(${-offset}px)`;
-        container.style.transition = 'transform 0.4s ease';
-    }
-
-    // 缩略图箭头点击事件
-    function scrollThumbsLeft() {
-        thumbStartIndex = (thumbStartIndex - 1 + galleryImages.length) % galleryImages.length;
-        updateThumbnailsPosition();
-    }
-
-    function scrollThumbsRight() {
-        thumbStartIndex = (thumbStartIndex + 1) % galleryImages.length;
-        updateThumbnailsPosition();
+    // 清空缩略图（无图片时用）
+    function clearThumbnails() {
+        const track = document.getElementById('thumbs-track');
+        track.innerHTML = '';
     }
 
     window.onload = () => {
