@@ -11,15 +11,16 @@
             left: 0;
             right: 0;
             background: #000;
-            height: 50px;
+            height: 60px;              /* 高度调大 */
             display: flex;
             align-items: center;
-            padding-left: 15px;
+            padding-left: 25px;        /* logo 往右移动 */
             box-sizing: border-box;
-            z-index: 9999; /* 确保在最上层 */
+            z-index: 9999;             /* 确保在最上层 */
+            font-weight: 600;          /* 字体加粗 */
         }
         .topbar img {
-            height: 40px;
+            height: 48px;              /* logo 放大 */
             width: auto;
             display: block;
         }
@@ -28,24 +29,28 @@
             font-family: Arial, sans-serif;
             max-width: 960px;
             margin: 0 auto;
-            padding: 70px 10px 10px 10px; /* 顶部预留50px + 20px间距 */
+            padding: 80px 10px 10px 10px; /* 顶部预留高度 */
             background: #333;
             color: #f0f0f0;
         }
+
         .header-title-block {
             display: flex;
             flex-direction: column;
         }
+
         .header-title {
             font-size: 2.3em;
             font-weight: bold;
             margin-bottom: 6px;
         }
+
         .header-subtitle {
             font-size: 0.95em;
             opacity: 0.9;
             user-select: none;
         }
+
         .portfolio-title {
             text-align: center;
             font-size: 1.2em;
@@ -54,17 +59,21 @@
             user-select: none;
             color: #ddd;
         }
+
         .gallery {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: flex-start;
         }
+
+        /* 每行两个 */
         .gallery-item {
             width: calc((100% - 20px) / 2);
             cursor: pointer;
             text-align: center;
         }
+
         .gallery-item img {
             width: 100%;
             aspect-ratio: 16 / 9;
@@ -75,15 +84,18 @@
             box-shadow: 0 2px 5px rgba(255,255,255,0.2);
             transition: transform 0.2s ease;
         }
+
         .gallery-item img:hover {
             transform: scale(1.05);
         }
+
         .caption {
             margin-top: 6px;
             font-size: 0.9em;
             color: #ddd;
             user-select: none;
         }
+
         @media (max-width: 600px) {
             .gallery-item {
                 width: 100%;
