@@ -20,9 +20,10 @@ def read_description(folder_path):
 
 def generate_info_json(folder_name, folder_path, image_path, description):
     info_json_path = os.path.join(folder_path, "info.json")
-    title = folder_name.replace("_", " ").replace("-", " ").title()
+    # 取description第一行作为title，如果没有description则用文件夹名格式化
+    title_line = description.splitlines()[0] if description else folder_name.replace("_", " ").replace("-", " ").title()
     info = {
-        "title": title,
+        "title": title_line,
         "image": image_path,
         "description": description
     }
@@ -43,14 +44,16 @@ def main():
             image_path = find_png_in_folder(folder_path)
             if image_path:
                 description = read_description(folder_path)
-
+                generate_info_json(folder_name, folder_path, image_path, description)
+                
+                title_line = description.splitlines()[0] if description else folder_name.replace("_", " ").replace("-", " ").title()
+                
                 entry = {
                     "folder": folder_name,
-                    "image": image_path
+                    "image": image_path,
+                    "title": title_line
                 }
                 items.append(entry)
-
-                generate_info_json(folder_name, folder_path, image_path, description)
             else:
                 print(f'警告：文件夹 "{folder_name}" 中未找到 PNG 图片')
 

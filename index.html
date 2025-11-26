@@ -150,11 +150,11 @@
 
                     const img = document.createElement('img');
                     img.src = item.image;
-                    img.alt = item.folder;
+                    img.alt = item.title;
 
                     const caption = document.createElement('div');
                     caption.className = 'caption';
-                    caption.textContent = item.folder;
+                    caption.textContent = item.title;  // 用 description 第一行作为标题显示
 
                     a.appendChild(img);
                     div.appendChild(a);

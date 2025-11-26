@@ -3,19 +3,23 @@
   "items": [
     {
       "folder": "EndlessSoul",
-      "image": "content/EndlessSoul/image.png"
+      "image": "content/EndlessSoul/image.png",
+      "title": "Endless Soul"
     },
     {
       "folder": "FlyingBee",
-      "image": "content/FlyingBee/image.png"
+      "image": "content/FlyingBee/image.png",
+      "title": "Flying Bee"
     },
     {
       "folder": "Implant",
-      "image": "content/Implant/image.png"
+      "image": "content/Implant/image.png",
+      "title": "Implant"
     },
     {
       "folder": "MissionarySimulator",
-      "image": "content/MissionarySimulator/image.png"
+      "image": "content/MissionarySimulator/image.png",
+      "title": "Missionary Simulator"
     }
   ]
 }
