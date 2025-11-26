@@ -108,6 +108,8 @@
             font-size: 0.9em;
             color: #ddd;
             user-select: none;
+            /* 保持首字母大写风格，如果需要全部大写，可用 text-transform */
+            /* text-transform: capitalize; */
         }
 
         @media (max-width: 600px) {
@@ -135,11 +137,19 @@
     <div class="gallery" id="gallery"></div>
 
     <script>
-        fetch('data.json')
+        fetch('data.json?t=' + Date.now())  // 加时间戳避免缓存
             .then(response => response.json())
             .then(data => {
+                console.log('data:', data);  // 调试用，确认数据结构
+
                 const gallery = document.getElementById('gallery');
                 const infoPage = data.infoPage || 'info.html';
+
+                if (!data.items || !Array.isArray(data.items)) {
+                    console.error('data.items 不存在或格式错误');
+                    return;
+                }
+
                 data.items.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'gallery-item';
@@ -150,11 +160,11 @@
 
                     const img = document.createElement('img');
                     img.src = item.image;
-                    img.alt = item.title;
+                    img.alt = item.title || item.folder;
 
                     const caption = document.createElement('div');
                     caption.className = 'caption';
-                    caption.textContent = item.title;  // 用 description 第一行作为标题显示
+                    caption.textContent = item.title || item.folder;
 
                     a.appendChild(img);
                     div.appendChild(a);
