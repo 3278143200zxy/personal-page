@@ -47,23 +47,23 @@
             padding-right: 15px;
         }
 
-        /* 标题样式，放大并禁止大小写转换 */
+        /* 标题放左，字体大小不变 */
         h1 {
             font-size: 3em;          /* 放大字体 */
             margin-top: 15px;
             margin-bottom: 10px;
-            text-align: center;
+            text-align: left;        /* 靠左 */
             text-transform: none;    /* 禁止自动大小写转换 */
         }
 
         img.cover {
-            width: 100vw;
-            max-width: 100vw;
-            border-radius: 0;      /* 去掉圆角 */
-            margin-left: calc(-50vw + 50%);
-            margin-right: calc(-50vw + 50%);
-            box-shadow: none;
+            width: 70vw;               /* 缩小到0.7倍宽度 */
+            max-width: 100%;
+            border-radius: 0;          /* 去掉圆角 */
+            margin-left: auto;
+            margin-right: auto;
             display: block;
+            box-shadow: none;
         }
 
         p.description {
@@ -91,7 +91,7 @@
     <!-- 图片放前面 -->
     <img id="cover" class="cover" src="" alt="封面图片" />
 
-    <!-- 标题放图片下面 -->
+    <!-- 标题靠左 -->
     <h1 id="title">加载中...</h1>
 
     <p class="description" id="description"></p>
