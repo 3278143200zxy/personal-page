@@ -44,7 +44,7 @@
             text-transform: none;
         }
 
-        /* --- Gallery 外框 --- */
+        /* Gallery 外框 */
         .gallery-container {
             width: 100%;
             height: 420px;
@@ -59,11 +59,13 @@
         .gallery-image {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* 适应外框，长或宽贴边 */
+            object-fit: contain; /* 保持比例，长或宽贴边 */
             background: black;
+            display: block;
+            user-select: none;
         }
 
-        /* --- 左右箭头 --- */
+        /* 左右箭头 */
         .arrow {
             position: absolute;
             top: 50%;
@@ -74,9 +76,13 @@
             padding: 10px;
             user-select: none;
             z-index: 20;
+            background: rgba(0,0,0,0.3);
+            border-radius: 50%;
+            transition: background-color 0.3s;
         }
 
         .arrow:hover {
+            background: rgba(255,255,255,0.3);
             color: #ccc;
         }
 
@@ -106,10 +112,9 @@
     </a>
 </div>
 
-<!-- ⭐ 替换原始封面：现在是 gallery 容器 ⭐ -->
 <div class="gallery-container">
     <div class="arrow left-arrow" onclick="prevImage()">❮</div>
-    <img id="gallery-img" class="gallery-image" src="">
+    <img id="gallery-img" class="gallery-image" src="" alt="作品图片" draggable="false" />
     <div class="arrow right-arrow" onclick="nextImage()">❯</div>
 </div>
 
@@ -132,6 +137,7 @@
         if (!folder) {
             document.getElementById('title').textContent = "未指定作品文件夹";
             document.getElementById('description').textContent = "请从主页点击作品进入详情页面。";
+            document.getElementById('gallery-img').style.display = 'none';
             return;
         }
 
@@ -151,25 +157,31 @@
             lines.shift();
             document.getElementById('description').textContent = lines.join("\n");
 
-            // gallery 列表
+            // gallery 列表，路径为完整相对路径
             galleryImages = info.gallery || [];
 
-            // 加载第一张到主图
+            // 加载第一张到主图（直接用第0项）
             if (galleryImages.length > 0) {
-                document.getElementById("gallery-img").src =
-                    `content/${folder}/gallery/` + galleryImages[0];
+                galleryIndex = 0;
+                const galleryImg = document.getElementById("gallery-img");
+                galleryImg.src = galleryImages[galleryIndex];
+                galleryImg.style.display = 'block';
+            } else {
+                // 没有图片隐藏图片控件
+                document.getElementById('gallery-img').style.display = 'none';
             }
 
         } catch (e) {
             document.getElementById('title').textContent = "加载失败";
             document.getElementById('description').textContent = `无法加载作品信息：${e.message}`;
+            document.getElementById('gallery-img').style.display = 'none';
         }
     }
 
     function showImage() {
-        const folder = getQueryParam('folder');
+        if (galleryImages.length === 0) return;
         const img = document.getElementById("gallery-img");
-        img.src = `content/${folder}/gallery/` + galleryImages[galleryIndex];
+        img.src = galleryImages[galleryIndex];
     }
 
     function nextImage() {
