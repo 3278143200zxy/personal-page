@@ -4,50 +4,67 @@
     <meta charset="utf-8" />
     <title>作品详情</title>
     <style>
-        /* 顶部黑色横条导航栏，和index完全一致 */
+        /* 全局重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 顶部黑色固定导航条 */
         .topbar {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            background: #000;
             height: 60px;
+            background: #000;
             display: flex;
             align-items: center;
             padding-left: 25px;
-            box-sizing: border-box;
-            z-index: 9999;
             font-weight: 600;
+            border-bottom: 1px solid #111;
+            z-index: 9999;
         }
+
         .topbar img {
             height: 48px;
             width: auto;
             display: block;
+            margin: 0;
+            line-height: 0;
+            vertical-align: middle;
         }
 
         body {
             font-family: Arial, sans-serif;
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 80px 15px 15px 15px; /* 预留顶部空间 */
             background: #222;
             color: #eee;
+            padding-top: 60px; /* 预留导航栏空间 */
+            max-width: 700px;
+            margin: 0 auto;
+            padding-left: 15px;
+            padding-right: 15px;
         }
+
         h1 {
             font-size: 2em;
             margin-bottom: 10px;
         }
-        img {
+
+        img.cover {
             max-width: 100%;
             border-radius: 8px;
             margin-bottom: 15px;
             box-shadow: 0 2px 6px rgba(255,255,255,0.2);
         }
+
         p.description {
             font-size: 1.1em;
             line-height: 1.5;
             white-space: pre-wrap;
         }
+
         .back-link {
             margin-top: 30px;
             display: inline-block;
@@ -60,11 +77,11 @@
 <body>
 
     <div class="topbar">
-        <img src="logo.png" alt="logo">
+        <img src="logo.png" alt="logo" />
     </div>
 
     <h1 id="title">加载中...</h1>
-    <img id="cover" src="" alt="封面图片" />
+    <img id="cover" class="cover" src="" alt="封面图片" />
     <p class="description" id="description"></p>
 
     <a href="index.html" class="back-link">← 返回作品集</a>
@@ -82,6 +99,7 @@
                 document.getElementById('cover').style.display = 'none';
                 return;
             }
+
             const infoJsonPath = `content/${folder}/info.json`;
 
             try {
