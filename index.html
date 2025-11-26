@@ -13,23 +13,27 @@
             background: #000;
             height: 60px;              /* 高度调大 */
             display: flex;
-            align-items: center;
+            align-items: center;       /* 垂直居中 */
             padding-left: 25px;        /* logo 往右移动 */
             box-sizing: border-box;
             z-index: 9999;             /* 确保在最上层 */
             font-weight: 600;          /* 字体加粗 */
+            border-bottom: 1px solid #111;
         }
         .topbar img {
-            height: 48px;              /* logo 放大 */
+            height: 48px;
             width: auto;
-            display: block;
+            display: block;            /* 避免内联基线对齐偏差 */
+            margin: 0;
+            line-height: 0;
+            vertical-align: middle;
         }
 
         body {
             font-family: Arial, sans-serif;
             max-width: 960px;
             margin: 0 auto;
-            padding: 80px 10px 10px 10px; /* 顶部预留高度 */
+            padding: 80px 10px 10px 10px; /* 预留顶部导航高度 */
             background: #333;
             color: #f0f0f0;
         }
