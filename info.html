@@ -21,6 +21,9 @@
             border-bottom: 1px solid #111;
             z-index: 9999;
         }
+        .topbar a {
+            display: inline-block;
+        }
         .topbar img {
             height: 48px;
             width: auto;
@@ -28,6 +31,7 @@
             margin: 0;
             line-height: 0;
             vertical-align: middle;
+            cursor: pointer;
         }
         body {
             font-family: Arial, sans-serif;
@@ -44,7 +48,7 @@
             margin-top: 15px;
             margin-bottom: 10px;
             text-align: left;
-            text-transform: none; /* 禁止自动大小写转换 */
+            text-transform: none; /* 禁止大小写转换 */
         }
         img.cover {
             width: 70vw;
@@ -73,7 +77,9 @@
 <body>
 
 <div class="topbar">
-    <img src="logo.png" alt="logo" />
+    <a href="index.html">
+        <img src="logo.png" alt="logo" />
+    </a>
 </div>
 
 <img id="cover" class="cover" src="" alt="封面图片" />
