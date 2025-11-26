@@ -65,6 +65,21 @@
             user-select: none;
         }
 
+        /* loading文字覆盖层 */
+        #loading-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            user-select: none;
+            pointer-events: none;
+            display: none;
+            z-index: 25;
+        }
+
         /* 左右箭头 */
         .arrow {
             position: absolute;
@@ -113,6 +128,7 @@
 </div>
 
 <div class="gallery-container">
+    <div id="loading-overlay">Loading...</div>
     <div class="arrow left-arrow" onclick="prevImage()">❮</div>
     <img id="gallery-img" class="gallery-image" src="" alt="作品图片" draggable="false" />
     <div class="arrow right-arrow" onclick="nextImage()">❯</div>
@@ -132,12 +148,15 @@
 
     let galleryImages = [];
     let galleryIndex = 0;
+    let folderName = "";
 
     async function loadInfo(folder) {
+        folderName = folder;
         if (!folder) {
             document.getElementById('title').textContent = "未指定作品文件夹";
             document.getElementById('description').textContent = "请从主页点击作品进入详情页面。";
             document.getElementById('gallery-img').style.display = 'none';
+            document.getElementById('loading-overlay').style.display = 'none';
             return;
         }
 
@@ -163,25 +182,48 @@
             // 加载第一张到主图（直接用第0项）
             if (galleryImages.length > 0) {
                 galleryIndex = 0;
-                const galleryImg = document.getElementById("gallery-img");
-                galleryImg.src = galleryImages[galleryIndex];
-                galleryImg.style.display = 'block';
+                showImage();
             } else {
-                // 没有图片隐藏图片控件
+                // 没有图片隐藏图片控件和loading
                 document.getElementById('gallery-img').style.display = 'none';
+                document.getElementById('loading-overlay').style.display = 'none';
             }
 
         } catch (e) {
             document.getElementById('title').textContent = "加载失败";
             document.getElementById('description').textContent = `无法加载作品信息：${e.message}`;
             document.getElementById('gallery-img').style.display = 'none';
+            document.getElementById('loading-overlay').style.display = 'none';
         }
+    }
+
+    function showLoading() {
+        document.getElementById('loading-overlay').style.display = 'block';
+        document.getElementById('gallery-img').style.display = 'none';
+    }
+
+    function hideLoading() {
+        document.getElementById('loading-overlay').style.display = 'none';
+        document.getElementById('gallery-img').style.display = 'block';
     }
 
     function showImage() {
         if (galleryImages.length === 0) return;
         const img = document.getElementById("gallery-img");
-        img.src = galleryImages[galleryIndex];
+        showLoading();
+
+        img.onload = () => {
+            hideLoading();
+        };
+        img.onerror = () => {
+            hideLoading();
+            // 你也可以在这里设置默认错误图或提示
+        };
+
+        img.src = galleryImages[galleryIndex].startsWith('content/') 
+            ? galleryImages[galleryIndex] 
+            : `content/${folderName}/gallery/${galleryImages[galleryIndex]}`;
+        img.alt = `作品图片 ${galleryIndex + 1} / ${galleryImages.length}`;
     }
 
     function nextImage() {
