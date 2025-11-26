@@ -300,14 +300,14 @@
     function nextImage() {
         if (galleryImages.length === 0) return;
         galleryIndex = (galleryIndex + 1) % galleryImages.length;
-        moveThumbToCenter(galleryIndex);
+        moveThumbToCenterByRealIndex(galleryIndex);
         showImage();
     }
 
     function prevImage() {
         if (galleryImages.length === 0) return;
         galleryIndex = (galleryIndex - 1 + galleryImages.length) % galleryImages.length;
-        moveThumbToCenter(galleryIndex);
+        moveThumbToCenterByRealIndex(galleryIndex);
         showImage();
     }
 
@@ -354,6 +354,16 @@
         updateSelectedThumb();
     }
 
+    // 设置thumbs-track的transform，带动画开关
+    function setTrackPosition(withTransition) {
+        if (withTransition) {
+            thumbsTrack.style.transition = 'transform 0.4s ease';
+        } else {
+            thumbsTrack.style.transition = 'none';
+        }
+        thumbsTrack.style.transform = `translateX(${currentTranslate}px)`;
+    }
+
     // 点击或切换时让指定pos的缩略图平滑移动到中间位置
     function moveThumbToCenter(targetPos) {
         if (isTransitioning) return;
@@ -367,6 +377,19 @@
 
         // 监听动画结束，处理循环边界
         thumbsTrack.addEventListener('transitionend', onTransitionEnd);
+    }
+
+    // 根据真实索引找出对应pos，再移动居中（外部调用）
+    function moveThumbToCenterByRealIndex(realIndex) {
+        // 找当前三倍数组中中间组对应realIndex的位置
+        // 三倍数组中中间组起点 = galleryImages.length
+        const middleStart = galleryImages.length;
+        for(let pos = middleStart; pos < middleStart + galleryImages.length; pos++) {
+            if (thumbsIndexes[pos] === realIndex) {
+                moveThumbToCenter(pos);
+                break;
+            }
+        }
     }
 
     // 动画结束后处理循环边界，实现无缝循环
