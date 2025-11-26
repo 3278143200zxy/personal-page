@@ -2,8 +2,12 @@
   "title": "Missionary Simulator",
   "image": "content/MissionarySimulator/image.png",
   "gallery": [
-    "content/MissionarySimulator/gallery/image.png",
-    "content/MissionarySimulator/gallery/image2.png"
+    "content/MissionarySimulator/gallery/image1.png",
+    "content/MissionarySimulator/gallery/image2.png",
+    "content/MissionarySimulator/gallery/image3.png",
+    "content/MissionarySimulator/gallery/image4.png",
+    "content/MissionarySimulator/gallery/image5.png",
+    "content/MissionarySimulator/gallery/image6.png"
   ],
   "description": ""
 }
