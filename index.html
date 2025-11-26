@@ -4,25 +4,33 @@
     <meta charset="utf-8" />
     <title>mofox</title>
     <style>
+        /* 顶部黑色横条导航栏 固定定位 */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #000;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            box-sizing: border-box;
+            z-index: 9999; /* 确保在最上层 */
+        }
+        .topbar img {
+            height: 40px;
+            width: auto;
+            display: block;
+        }
+
         body {
             font-family: Arial, sans-serif;
             max-width: 960px;
-            margin: 20px auto;
-            padding: 0 10px;
+            margin: 0 auto;
+            padding: 70px 10px 10px 10px; /* 顶部预留50px + 20px间距 */
             background: #333;
             color: #f0f0f0;
-        }
-        .header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-            margin-top: -10px;
-        }
-        .header img {
-            width: 100px;
-            height: auto;
-            display: block;
         }
         .header-title-block {
             display: flex;
@@ -85,19 +93,22 @@
 </head>
 <body>
 
-    <div class="header">
+    <div class="topbar">
         <img src="logo.png" alt="logo">
+    </div>
+
+    <div style="max-width: 960px; margin: 0 auto; padding: 0 10px;">
         <div class="header-title-block">
             <div class="header-title">mofox (Xiyao Zhu)</div>
             <div class="header-subtitle">
                 Programmer, Producer, and above all, a Gamer — making and playing games is a lifelong passion.
             </div>
         </div>
+
+        <div class="portfolio-title">-Portfolio-</div>
+
+        <div class="gallery" id="gallery"></div>
     </div>
-
-    <div class="portfolio-title">-Portfolio-</div>
-
-    <div class="gallery" id="gallery"></div>
 
     <script>
         fetch('data.json')

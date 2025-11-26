@@ -4,11 +4,30 @@
     <meta charset="utf-8" />
     <title>作品详情</title>
     <style>
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #000;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            box-sizing: border-box;
+            z-index: 9999;
+        }
+        .topbar img {
+            height: 40px;
+            width: auto;
+            display: block;
+        }
+
         body {
             font-family: Arial, sans-serif;
             max-width: 700px;
-            margin: 20px auto;
-            padding: 0 15px;
+            margin: 0 auto;
+            padding: 70px 15px 15px 15px; /* 预留顶部空间防止内容被遮挡 */
             background: #222;
             color: #eee;
         }
@@ -37,6 +56,10 @@
     </style>
 </head>
 <body>
+
+    <div class="topbar">
+        <img src="logo.png" alt="logo">
+    </div>
 
     <h1 id="title">加载中...</h1>
     <img id="cover" src="" alt="封面图片" />
