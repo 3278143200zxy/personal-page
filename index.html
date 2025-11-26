@@ -40,7 +40,7 @@
             font-family: Arial, sans-serif;
             background: #333;
             color: #f0f0f0;
-            padding-top: 60px; /* 预留顶部导航高度，避免遮挡内容 */
+            padding-top: 70px; /* 预留顶部导航高度+间距，避免遮挡内容 */
             max-width: 960px;
             margin: 0 auto;
             padding-left: 10px;
@@ -51,7 +51,7 @@
             display: flex;
             flex-direction: column;
             margin-bottom: 30px;
-            margin-top: -10px;
+            margin-top: 0;  /* 取消负margin，避免遮挡 */
         }
 
         .header-title {
@@ -108,8 +108,6 @@
             font-size: 0.9em;
             color: #ddd;
             user-select: none;
-            /* 保持首字母大写风格，如果需要全部大写，可用 text-transform */
-            /* text-transform: capitalize; */
         }
 
         @media (max-width: 600px) {
@@ -140,8 +138,6 @@
         fetch('data.json?t=' + Date.now())  // 加时间戳避免缓存
             .then(response => response.json())
             .then(data => {
-                console.log('data:', data);  // 调试用，确认数据结构
-
                 const gallery = document.getElementById('gallery');
                 const infoPage = data.infoPage || 'info.html';
 
