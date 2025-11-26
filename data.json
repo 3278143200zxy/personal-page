@@ -2,14 +2,14 @@
   "infoPage": "info.html",
   "items": [
     {
+      "folder": "CryingBaby",
+      "image": "content/CryingBaby/image.png",
+      "title": "Crying Baby"
+    },
+    {
       "folder": "EndlessSoul",
       "image": "content/EndlessSoul/image.png",
       "title": "Endless Soul"
-    },
-    {
-      "folder": "FlyingBee",
-      "image": "content/FlyingBee/image.png",
-      "title": "Flying Bee"
     },
     {
       "folder": "Implant",

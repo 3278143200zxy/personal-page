@@ -15,17 +15,22 @@ def read_description(folder_path):
     desc_path = os.path.join(folder_path, DESCRIPTION_FILE)
     if os.path.isfile(desc_path):
         with open(desc_path, 'r', encoding='utf-8') as f:
-            return f.read().strip()
-    return ""
+            lines = f.readlines()
+            # 去除空行，并strip每行
+            return [line.strip() for line in lines if line.strip()]
+    return []
 
-def generate_info_json(folder_name, folder_path, image_path, description):
+def generate_info_json(folder_name, folder_path, image_path, description_lines):
     info_json_path = os.path.join(folder_path, "info.json")
-    # 取description第一行作为title，如果没有description则用文件夹名格式化
-    title_line = description.splitlines()[0] if description else folder_name.replace("_", " ").replace("-", " ").title()
+    # title 是 description 第一行或用文件夹名格式化
+    title_line = description_lines[0] if description_lines else folder_name.replace("_", " ").replace("-", " ").title()
+    # description 是剩余行拼接，换行用\n
+    description_text = "\n".join(description_lines[1:]) if len(description_lines) > 1 else ""
+
     info = {
         "title": title_line,
         "image": image_path,
-        "description": description
+        "description": description_text
     }
     with open(info_json_path, 'w', encoding='utf-8') as f:
         json.dump(info, f, ensure_ascii=False, indent=2)
@@ -43,11 +48,11 @@ def main():
         if os.path.isdir(folder_path):
             image_path = find_png_in_folder(folder_path)
             if image_path:
-                description = read_description(folder_path)
-                generate_info_json(folder_name, folder_path, image_path, description)
-                
-                title_line = description.splitlines()[0] if description else folder_name.replace("_", " ").replace("-", " ").title()
-                
+                description_lines = read_description(folder_path)
+                generate_info_json(folder_name, folder_path, image_path, description_lines)
+
+                title_line = description_lines[0] if description_lines else folder_name.replace("_", " ").replace("-", " ").title()
+
                 entry = {
                     "folder": folder_name,
                     "image": image_path,
