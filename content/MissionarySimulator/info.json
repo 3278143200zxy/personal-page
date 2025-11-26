@@ -1,5 +1,8 @@
 {
   "title": "Missionary Simulator",
   "image": "content/MissionarySimulator/image.png",
+  "gallery": [
+    "content/MissionarySimulator/gallery/image2.png"
+  ],
   "description": ""
 }
