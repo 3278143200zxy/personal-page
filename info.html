@@ -150,7 +150,9 @@
         transition: border-color 0.3s;
     }
     .thumb.selected {
-        border-color: white;
+        /* 使用 box-shadow 替代 border-color 减少闪烁 */
+        border-color: transparent;
+        box-shadow: 0 0 8px 2px white;
     }
 
     p.description {
@@ -409,13 +411,12 @@
         updateSelectedThumb();
     }
 
-    // 更新缩略图高亮
+    // 修改后的更新缩略图高亮：只高亮当前位置currentPos对应缩略图
     function updateSelectedThumb() {
         const thumbs = thumbsTrack.children;
         for (let i = 0; i < thumbs.length; i++) {
             const thumb = thumbs[i];
-            const realIndex = parseInt(thumb.dataset.realIndex);
-            if (realIndex === galleryIndex && i === currentPos) {
+            if (i === currentPos) {
                 thumb.classList.add('selected');
             } else {
                 thumb.classList.remove('selected');
