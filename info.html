@@ -242,32 +242,47 @@ function setupThumbnails(){
   updateSelectedBoxImmediate(true);
 }
 
+// 关键修改，循环移动效果
 function updateSelectedBoxImmediate(noAnim=false){
   if(!selectedBox) return;
-  // 计算容器滑动距离，使选中缩略图居中显示
+  const total = galleryImages.length;
+  const totalThumbs = thumbsTrack.childElementCount; // 3倍 total
+  const oneSetLength = total * STEP_PX;
+
+  // 允许offset超出范围，实现无缝循环
   let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
-  const maxOffset = (thumbsTrack.childElementCount - THUMB_COUNT) * STEP_PX;
-  if(offset < 0) offset = 0;
-  if(offset > maxOffset) offset = maxOffset;
-  // 容器滑动有动画
-  thumbsTrack.style.transition = 'transform 0.4s ease';
+
+  if(offset < 0){
+    offset += oneSetLength;
+    currentPos += total;
+  } else if(offset >= oneSetLength){
+    offset -= oneSetLength;
+    currentPos -= total;
+  }
+
+  thumbsTrack.style.transition = noAnim ? 'none' : 'transform 0.4s ease';
   thumbsTrack.style.transform = `translateX(${-offset}px)`;
-  // 白框无动画，位置固定中间
-  selectedBox.style.transition = noAnim ? 'none' : 'none'; // 永远无动画
+
+  // 白框固定在中间位置
+  selectedBox.style.transition = 'none';
   selectedBox.style.transform = `translateX(${Math.floor(THUMB_COUNT/2)*STEP_PX}px)`;
 }
 
 function moveThumbByStep(step){
   if(isTransitioning) return;
-  isTransitioning=true;
-  currentPos+=step;
-  const total=galleryImages.length;
+  isTransitioning = true;
+  currentPos += step;
+  const total = galleryImages.length;
+
+  // 保证 currentPos 在 [total, 2*total) 区间，方便循环处理
   if(currentPos < total) currentPos += total;
-  if(currentPos >= 2*total) currentPos -= total;
-  updateSelectedBoxImmediate(true);
+  else if(currentPos >= 2*total) currentPos -= total;
+
+  updateSelectedBoxImmediate(false);
   galleryIndex = thumbsIndexes[currentPos];
   showMedia();
-  setTimeout(()=>{isTransitioning=false;},400);
+
+  setTimeout(() => { isTransitioning = false; }, 400);
 }
 
 function nextImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(1);}
