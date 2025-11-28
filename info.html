@@ -4,309 +4,314 @@
 <meta charset="utf-8" />
 <title>作品详情</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  .topbar {
-    position:fixed;top:0;left:0;right:0;height:60px;
-    background:#000;display:flex;align-items:center;padding-left:25px;
-    font-weight:600;border-bottom:1px solid #111;z-index:9999;
-  }
-  .topbar a img {
-    height:48px;width:auto;cursor:pointer;
-  }
-  body {
-    font-family: Arial, sans-serif;
-    background:#222;color:#eee;
-    padding-top:60px;
-    max-width:700px;margin:0 auto;
-    padding-left:15px;padding-right:15px;
-  }
-  h1 {
-    font-size:3em;margin:15px 0 10px;text-align:left;text-transform:none;
-  }
-  .gallery-container {
-    width:100%;height:420px;background:#000;
-    margin:15px auto;position:relative;overflow:hidden;
-  }
-  .gallery-image,.gallery-video {
-    width:100%;height:100%;object-fit:contain;
-    background:#000;display:block;user-select:none;
-  }
-  #loading-overlay {
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    color:#fff;font-size:1.5em;font-weight:700;user-select:none;
-    pointer-events:none;display:none;z-index:25;
-  }
-  .arrow {
-    position:absolute;top:50%;transform:translateY(-50%);
-    font-size:40px;color:#fff;cursor:pointer;padding:10px;
-    user-select:none;z-index:20;background:rgba(0,0,0,0.3);
-    border-radius:50%;transition:background-color .3s;
-  }
-  .arrow:hover {
-    background:rgba(255,255,255,0.3);color:#ccc;
-  }
-  .left-arrow { left:10px; }
-  .right-arrow { right:10px; }
-  .thumbs-wrapper {
-    position:relative;margin:12px auto 0;
-    width:600px;height:65px;user-select:none;overflow:hidden;
-  }
-  .thumbs-mask-left, .thumbs-mask-right {
-    position:absolute;top:0;width:50px;height:65px;
-    pointer-events:none;z-index:30;
-  }
-  .thumbs-mask-left {
-    left:0;background:linear-gradient(to right,#222 0%,transparent 100%);
-  }
-  .thumbs-mask-right {
-    right:0;background:linear-gradient(to left,#222 0%,transparent 100%);
-  }
-  .thumbs-track {
-    display:flex;gap:8px;height:65px;will-change:transform;
-    transition: transform 0.4s ease;
-  }
-  .thumb {
-    position:relative;
-    width:80px;height:45px;
-    background:#000 no-repeat center/cover;
-    border:2px solid transparent;border-radius:4px;
-    cursor:pointer;flex-shrink:0;transition:none;
-  }
-  .thumb.video-thumb::after {
-    content:"▶";
-    position:absolute;top:50%;left:50%;
-    transform:translate(-50%,-50%);
-    font-size:24px;color:rgba(255,255,255,0.8);
-    pointer-events:none;
-  }
-  .thumb.selected {
-    border-color:#fff;
-  }
-  p.description {
-    font-size:1.1em;line-height:1.5;white-space:pre-wrap;margin-top:15px;
-  }
-  .back-link {
-    margin-top:30px;display:inline-block;color:#aaf;
-    text-decoration:underline;cursor:pointer;
-  }
-  #thumb-selected-box {
-    position: absolute;
-    top: 0; left: 0;
-    width: 80px; height: 45px;
-    border: 2px solid white;
-    border-radius: 4px;
-    pointer-events: none;
-    transition: none;
-    z-index: 40;
-    transform: translateX(calc(50% - 40px)); /* 居中 */
-  }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    .topbar {
+        position: fixed; top:0; left:0; right:0; height:60px; background:#000;
+        display:flex; align-items:center; padding-left:25px; font-weight:600;
+        border-bottom:1px solid #111; z-index:9999;
+    }
+    .topbar a img {
+        height:48px; cursor:pointer;
+    }
+    body {
+        font-family: Arial,sans-serif; background:#222; color:#eee;
+        padding-top:60px; max-width:700px; margin:0 auto 0 auto;
+        padding-left:15px; padding-right:15px;
+    }
+    h1 {
+        font-size:3em; margin:15px 0 10px 0; text-align:left; text-transform:none;
+    }
+    .gallery-container {
+        width:100%; height:420px; background:black; position:relative;
+        overflow:hidden; margin-top:15px;
+    }
+    .gallery-image,.gallery-video {
+        width:100%; height:100%; object-fit:contain; background:black;
+        display:block; user-select:none;
+    }
+    #loading-overlay {
+        position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+        color:#fff; font-size:1.5em; font-weight:700; user-select:none;
+        pointer-events:none; display:none; z-index:25;
+    }
+    .arrow {
+        position:absolute; top:50%; transform:translateY(-50%);
+        font-size:40px; color:#fff; cursor:pointer; padding:10px;
+        user-select:none; z-index:20; background:rgba(0,0,0,0.3);
+        border-radius:50%; transition:background-color .3s;
+    }
+    .arrow:hover {
+        background:rgba(255,255,255,0.3); color:#ccc;
+    }
+    .left-arrow { left:10px; }
+    .right-arrow { right:10px; }
+    .thumbs-wrapper {
+        position:relative; margin:12px auto 0 auto; width:600px; height:65px;
+        user-select:none; overflow:hidden;
+    }
+    .thumbs-mask-left, .thumbs-mask-right {
+        position:absolute; top:0; width:50px; height:65px; pointer-events:none; z-index:30;
+    }
+    .thumbs-mask-left {
+        left:0; background:linear-gradient(to right,#222 0%,transparent 100%);
+    }
+    .thumbs-mask-right {
+        right:0; background:linear-gradient(to left,#222 0%,transparent 100%);
+    }
+    .thumbs-track {
+        display:flex; gap:8px; transition:transform 0.4s ease; height:65px;
+        will-change:transform;
+    }
+    .thumb {
+        width:80px; height:45px; background:#000; border:2px solid transparent;
+        border-radius:4px; cursor:pointer; object-fit:cover; flex-shrink:0;
+        transition:border-color .3s;
+        position:relative;
+    }
+    .thumb.selected {
+        border-color:#fff;
+    }
+    /* 播放按钮覆盖在视频缩略图中间 */
+    .thumb.video-thumb::after {
+        content: "▶";
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        color: rgba(255,255,255,0.8);
+        font-size: 24px;
+        pointer-events: none;
+        user-select: none;
+    }
+    p.description {
+        font-size:1.1em; line-height:1.5; white-space:pre-wrap; margin-top:15px;
+    }
+    .back-link {
+        margin-top:30px; display:inline-block; color:#aaf;
+        text-decoration:underline; cursor:pointer;
+    }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <a href="index.html"><img src="logo.png" alt="logo" /></a>
+    <a href="index.html">
+        <img src="logo.png" alt="logo" />
+    </a>
 </div>
 
 <div class="gallery-container">
-  <div id="loading-overlay">Loading...</div>
-  <div class="arrow left-arrow" onclick="prevImage()">❮</div>
-  <img id="gallery-img" class="gallery-image" src="" alt="作品图片" draggable="false" style="display:none;" />
-  <video id="gallery-video" class="gallery-video" controls style="display:none;"></video>
-  <div class="arrow right-arrow" onclick="nextImage()">❯</div>
+    <div id="loading-overlay">Loading...</div>
+    <div class="arrow left-arrow" onclick="prevImage()">❮</div>
+    <img id="gallery-img" class="gallery-image" src="" alt="作品图片" draggable="false" style="display:none;" />
+    <video id="gallery-video" class="gallery-video" controls style="display:none;"></video>
+    <div class="arrow right-arrow" onclick="nextImage()">❯</div>
 </div>
 
-<div class="thumbs-wrapper" id="thumbs-wrapper">
-  <div class="thumbs-mask-left"></div>
-  <div class="thumbs-mask-right"></div>
-  <div class="thumbs-track" id="thumbs-track"></div>
-  <div id="thumb-selected-box"></div>
+<div class="thumbs-wrapper">
+    <div class="thumbs-mask-left"></div>
+    <div class="thumbs-mask-right"></div>
+    <div class="thumbs-track" id="thumbs-track"></div>
 </div>
 
 <h1 id="title">加载中...</h1>
+
 <p class="description" id="description"></p>
+
 <a href="index.html" class="back-link">← 返回作品集</a>
 
 <script>
-const THUMB_COUNT = 6, THUMB_W = 80, THUMB_GAP = 8, STEP_PX = THUMB_W + THUMB_GAP;
-let folderName = "", galleryImages = [], galleryIndex = 0;
-let thumbsTrack, selectedBox;
-let thumbsIndexes = [], currentPos = 0;
-let isTransitioning = false;
+const THUMB_COUNT=6, THUMB_WIDTH=80, THUMB_GAP=8, STEP=THUMB_WIDTH+THUMB_GAP;
+let galleryImages=[], galleryIndex=0, folderName="", thumbsTrack, currentTranslate=0, isTransitioning=false;
+let thumbsIndexes=[], currentPos=0;
 
-function getQueryParam(p){return new URLSearchParams(location.search).get(p);}
+function getQueryParam(p){return new URLSearchParams(window.location.search).get(p)}
 
 async function loadInfo(folder){
-  folderName = folder || "";
-  if(!folder){
-    setError("未指定作品文件夹", "请从主页点击作品进入详情页面。");
-    return;
-  }
-  try {
-    let res=await fetch(`content/${folder}/info.json`);
-    if(!res.ok)throw"未找到 info.json";
-    let info=await res.json();
-    document.getElementById('title').textContent = info.title||folder;
-    let d=info.description||"无描述内容";
-    d=d.split("\n").slice(1).join("\n");
-    document.getElementById('description').textContent=d;
-    galleryImages=info.gallery||[];
-    if(galleryImages.length>0){
-      galleryIndex=0;
-      thumbsTrack=document.getElementById('thumbs-track');
-      selectedBox=document.getElementById('thumb-selected-box');
-      setupThumbnails();
-      showMedia();
-    } else clearMedia();
-  }catch(e){
-    setError("加载失败",`无法加载作品信息：${e}`);
-  }
+    folderName=folder;
+    if(!folder){
+        setError("未指定作品文件夹","请从主页点击作品进入详情页面。");
+        return;
+    }
+    try{
+        const res=await fetch(`content/${folder}/info.json`);
+        if(!res.ok)throw new Error('未找到 info.json');
+        const info=await res.json();
+        document.getElementById('title').textContent=info.title||folder;
+        let desc=info.description||"无描述内容";
+        let lines=desc.split("\n");
+        lines.shift();
+        document.getElementById('description').textContent=lines.join("\n");
+        galleryImages=info.gallery||[];
+        if(galleryImages.length>0){
+            galleryIndex=0;
+            thumbsTrack=document.getElementById('thumbs-track');
+            setupThumbnails();
+            showImage();
+        }else clearGallery();
+    }catch(e){
+        setError("加载失败",`无法加载作品信息：${e.message}`);
+    }
 }
 
-function setError(title,text){
-  document.getElementById('title').textContent=title;
-  document.getElementById('description').textContent=text;
-  clearMedia();
+function setError(title,msg){
+    document.getElementById('title').textContent=title;
+    document.getElementById('description').textContent=msg;
+    clearGallery();
 }
 
-function clearMedia(){
-  document.getElementById('gallery-img').style.display='none';
-  document.getElementById('gallery-video').style.display='none';
-  document.getElementById('loading-overlay').style.display='none';
-  if(thumbsTrack) thumbsTrack.innerHTML='';
-  if(selectedBox) selectedBox.style.transform='translateX(-9999px)';
+function clearGallery(){
+    document.getElementById('gallery-img').style.display='none';
+    document.getElementById('gallery-video').style.display='none';
+    document.getElementById('loading-overlay').style.display='none';
+    clearThumbnails();
+}
+
+function clearThumbnails(){
+    if(thumbsTrack) thumbsTrack.innerHTML='';
 }
 
 function showLoading(){
-  document.getElementById('loading-overlay').style.display='block';
-  document.getElementById('gallery-img').style.display='none';
-  document.getElementById('gallery-video').style.display='none';
-}
-function hideLoading(){document.getElementById('loading-overlay').style.display='none';}
-
-function showMedia(){
-  if(!galleryImages.length)return;
-  const img=document.getElementById('gallery-img');
-  const video=document.getElementById('gallery-video');
-  const src=galleryImages[galleryIndex].startsWith('content/')?galleryImages[galleryIndex]:`content/${folderName}/gallery/${galleryImages[galleryIndex]}`;
-  showLoading();
-  if(src.toLowerCase().endsWith('.mp4')){
-    img.style.display='none';
-    video.style.display='block';
-    video.src=src;
-    video.load();
-    video.play().catch(()=>{});
-    video.oncanplay=video.onerror=()=>hideLoading();
-  } else {
-    video.pause();
-    video.style.display='none';
-    img.style.display='block';
-    img.onload=()=>hideLoading();
-    img.onerror=()=>hideLoading();
-    img.src=src;
-    img.alt=`作品图片 ${galleryIndex+1} / ${galleryImages.length}`;
-  }
+    document.getElementById('loading-overlay').style.display='block';
+    document.getElementById('gallery-img').style.display='none';
+    document.getElementById('gallery-video').style.display='none';
 }
 
-// 初始化缩略图，3倍重复实现循环
-function setupThumbnails(){
-  thumbsTrack.innerHTML=''; thumbsIndexes=[];
-  if(!galleryImages.length) return;
-  for(let i=0;i<3;i++)
-    for(let j=0;j<galleryImages.length;j++)
-      thumbsIndexes.push(j);
-  thumbsIndexes.forEach((realIndex,pos)=>{
-    const thumb=document.createElement('div');
-    thumb.className='thumb';
-    const path=galleryImages[realIndex];
-    thumb.dataset.realIndex=realIndex; thumb.dataset.pos=pos;
-    if(path.toLowerCase().endsWith('.mp4')){
-      thumb.classList.add('video-thumb');
-      thumb.style.backgroundColor='#000';
-      generateVideoThumbnail(path.startsWith('content/')?path:`content/${folderName}/gallery/${path}`)
-        .then(url=>{if(url)thumb.style.backgroundImage=`url(${url})`});
-    } else {
-      thumb.style.backgroundImage = `url(${path.startsWith('content/')?path:`content/${folderName}/gallery/${path}`})`;
+function hideLoading(){
+    document.getElementById('loading-overlay').style.display='none';
+}
+
+function showImage(){
+    if(!galleryImages.length)return;
+    const img=document.getElementById('gallery-img');
+    const video=document.getElementById('gallery-video');
+    const src=galleryImages[galleryIndex].startsWith('content/')?galleryImages[galleryIndex]:`content/${folderName}/gallery/${galleryImages[galleryIndex]}`;
+    showLoading();
+    if(src.toLowerCase().endsWith('.mp4')){
+        img.style.display='none';
+        video.style.display='block';
+        video.src=src;
+        video.load();
+        video.play().catch(()=>{});
+        video.oncanplay=hideLoading;
+        video.onerror=hideLoading;
+    }else{
+        video.pause();
+        video.style.display='none';
+        img.style.display='block';
+        img.onload=()=>{
+            hideLoading();
+            updateSelectedThumb();
+        };
+        img.onerror=hideLoading;
+        img.src=src;
+        img.alt=`作品图片 ${galleryIndex+1} / ${galleryImages.length}`;
+        updateSelectedThumb();
     }
-    thumb.onclick = () => {
-      if(isTransitioning) return;
-      galleryIndex=realIndex;
-      currentPos=pos;
-      updateSelectedBoxImmediate(true);
-      showMedia();
-    };
-    thumbsTrack.appendChild(thumb);
-  });
-  // 初始位置在中间组对应galleryIndex
-  currentPos=galleryImages.length+galleryIndex;
-  updateSelectedBoxImmediate(true);
-  thumbsTrack.addEventListener('transitionend', onTransitionEnd);
 }
 
-function updateSelectedBoxImmediate(noAnim=false){
-  if(!selectedBox) return;
-  // 计算容器偏移，保证选中缩略图居中
-  let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
-  const maxOffset = (thumbsTrack.childElementCount - THUMB_COUNT) * STEP_PX;
-  if(offset < 0) offset = 0;
-  if(offset > maxOffset) offset = maxOffset;
-  thumbsTrack.style.transition = 'transform 0.4s ease';
-  thumbsTrack.style.transform = `translateX(${-offset}px)`;
-  // 白框固定中间，无动画
-  selectedBox.style.transition = 'none';
-  selectedBox.style.transform = `translateX(calc(50% - 40px))`;
+// 三倍复制缩略图实现无缝循环
+function setupThumbnails(){
+    thumbsTrack.innerHTML='';
+    thumbsIndexes=[];
+    const total=galleryImages.length;
+    if(!total)return;
+    for(let i=0;i<3;i++) for(let j=0;j<total;j++) thumbsIndexes.push(j);
+    thumbsIndexes.forEach((realIndex,pos)=>{
+        const img=document.createElement('img');
+        img.className='thumb';
+        const path=galleryImages[realIndex];
+        if(path.toLowerCase().endsWith('.mp4')){
+            img.classList.add('video-thumb');
+            // 视频缩略图尝试第一帧，改为占位图示例
+            img.src='video-thumb.png';
+        }else img.src=path.startsWith('content/')?path:`content/${folderName}/gallery/${path}`;
+        img.alt=`缩略图 ${realIndex+1}`;
+        img.dataset.realIndex=realIndex;
+        img.dataset.pos=pos;
+        img.onclick=()=>{
+            if(isTransitioning)return;
+            galleryIndex=realIndex;
+            moveThumbToPos(pos,true);
+            showImage();
+        };
+        thumbsTrack.appendChild(img);
+    });
+    currentPos=galleryImages.length+galleryIndex;
+    currentTranslate=-STEP*(currentPos-Math.floor(THUMB_COUNT/2));
+    setTrackPosition(false);
+    updateSelectedThumb();
 }
 
-function onTransitionEnd(){
-  const total = galleryImages.length;
-  // 边界检测，瞬间跳转无动画到中间组对应位置
-  if(currentPos < total){
-    currentPos += total;
-    let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
-    thumbsTrack.style.transition = 'none';
-    thumbsTrack.style.transform = `translateX(${-offset}px)`;
-  } else if(currentPos >= 2 * total){
-    currentPos -= total;
-    let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
-    thumbsTrack.style.transition = 'none';
-    thumbsTrack.style.transform = `translateX(${-offset}px)`;
-  }
-  isTransitioning = false;
+// 白框立即跳转，轨道滑动动画
+function moveThumbToPos(targetPos,withAnim){
+    if(isTransitioning)return;
+    isTransitioning=true;
+    // 先更新白框位置，立即显示
+    updateSelectedThumbIndex(targetPos);
+    currentPos=targetPos;
+    // 轨道动画
+    currentTranslate=-STEP*(currentPos-Math.floor(THUMB_COUNT/2));
+    setTrackPosition(withAnim);
+    if(withAnim){
+        thumbsTrack.addEventListener('transitionend',onTransitionEnd);
+    } else {
+        isTransitioning=false;
+    }
 }
 
 function moveThumbByStep(step){
-  if(isTransitioning) return;
-  isTransitioning=true;
-  currentPos += step;
-  galleryIndex = thumbsIndexes[currentPos];
-  updateSelectedBoxImmediate();
-  showMedia();
+    if(isTransitioning)return;
+    isTransitioning=true;
+    currentPos+=step;
+    updateSelectedThumbIndex(currentPos);
+    currentTranslate=-STEP*(currentPos-Math.floor(THUMB_COUNT/2));
+    setTrackPosition(true);
+    thumbsTrack.addEventListener('transitionend',onTransitionEnd);
 }
 
-function nextImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(1);}
-function prevImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(-1);}
-
-function generateVideoThumbnail(videoUrl){
-  return new Promise(resolve=>{
-    const video=document.createElement('video');
-    video.src=videoUrl;
-    video.crossOrigin="anonymous";
-    video.muted=true;
-    video.playsInline=true;
-    video.currentTime=0.1;
-    video.addEventListener('loadeddata',()=>{
-      const canvas=document.createElement('canvas');
-      canvas.width=video.videoWidth;
-      canvas.height=video.videoHeight;
-      const ctx=canvas.getContext('2d');
-      ctx.drawImage(video,0,0,canvas.width,canvas.height);
-      resolve(canvas.toDataURL('image/png'));
-    },{once:true});
-    video.onerror=()=>resolve(null);
-  });
+function setTrackPosition(withTransition){
+    thumbsTrack.style.transition=withTransition?'transform 0.4s ease':'none';
+    thumbsTrack.style.transform=`translateX(${currentTranslate}px)`;
 }
 
-window.onload=()=>loadInfo(getQueryParam('folder'));
+function onTransitionEnd(){
+    thumbsTrack.removeEventListener('transitionend',onTransitionEnd);
+    const total=galleryImages.length;
+    if(currentPos<total) currentPos+=total;
+    else if(currentPos>=2*total) currentPos-=total;
+    currentTranslate=-STEP*(currentPos-Math.floor(THUMB_COUNT/2));
+    setTrackPosition(false);
+    isTransitioning=false;
+    updateSelectedThumbIndex(currentPos);
+}
+
+function updateSelectedThumbIndex(index){
+    const thumbs=thumbsTrack.children;
+    for(let i=0;i<thumbs.length;i++){
+        thumbs[i].classList.toggle('selected', i===index);
+    }
+    // galleryIndex更新为对应真实索引
+    galleryIndex = thumbsIndexes[index] !== undefined ? thumbsIndexes[index] : galleryIndex;
+}
+
+function nextImage(){
+    if(!galleryImages.length || isTransitioning)return;
+    galleryIndex = (galleryIndex+1) % galleryImages.length;
+    moveThumbByStep(1);
+    showImage();
+}
+
+function prevImage(){
+    if(!galleryImages.length || isTransitioning)return;
+    galleryIndex = (galleryIndex-1+galleryImages.length) % galleryImages.length;
+    moveThumbByStep(-1);
+    showImage();
+}
+
+window.onload=()=>{
+    const folder=getQueryParam('folder');
+    loadInfo(folder);
+};
 </script>
 
 </body>
