@@ -74,7 +74,7 @@
         font-weight: bold;
         user-select: none;
         pointer-events: none;
-        display: none;
+        display: block; /* 一开始就显示loading */
         z-index: 25;
     }
     /* 左右箭头 */
@@ -133,7 +133,7 @@
     .thumbs-track {
         display: flex;
         gap: 8px;
-        transition: transform 0.4s ease;
+        /* **去掉这里的过渡**，改为只有手动切换时触发 */
         height: 65px;
         will-change: transform;
     }
@@ -148,10 +148,24 @@
         object-fit: cover;
         flex-shrink: 0;
         transition: border-color 0.3s;
+        position: relative;
     }
     .thumb.selected {
-        box-shadow: none;
         border-color: white;
+    }
+
+    /* 缩略图视频中间播放图标 */
+    .thumb.video-thumb::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 24px;
+        height: 24px;
+        background: url('play-icon.svg') no-repeat center center;
+        background-size: contain;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
     }
 
     p.description {
@@ -221,6 +235,9 @@
     // 缩略图当前位置索引（在三倍数组中）
     let currentPos = 0;
 
+    // 缩略图视频缓存 - 这里你可以预生成或用默认缩略图
+    const videoThumbCache = new Map();
+
     async function loadInfo(folder) {
         folderName = folder;
         if (!folder) {
@@ -244,7 +261,7 @@
 
             let desc = info.description || "无描述内容";
             let lines = desc.split("\n");
-            if(lines.length > 0) lines.shift();
+            lines.shift();
             document.getElementById('description').textContent = lines.join("\n");
 
             galleryImages = info.gallery || [];
@@ -252,6 +269,12 @@
             if (galleryImages.length > 0) {
                 galleryIndex = 0;
                 thumbsTrack = document.getElementById('thumbs-track');
+
+                // 先显示 loading（刚打开页面就显示）
+                document.getElementById('loading-overlay').style.display = 'block';
+
+                await preloadVideoThumbnails(); // 预加载视频缩略图缓存
+
                 setupThumbnails();
                 showImage();
             } else {
@@ -271,10 +294,18 @@
         }
     }
 
+    // 预加载视频缩略图缓存（这里可以放真实生成逻辑，这里简单用默认图）
+    async function preloadVideoThumbnails() {
+        // 模拟异步处理，实际可换为视频截图生成
+        galleryImages.forEach(path => {
+            if (path.toLowerCase().endsWith('.mp4')) {
+                videoThumbCache.set(path, 'video-thumb.png'); // 你需要准备这张图
+            }
+        });
+    }
+
     function showLoading() {
         document.getElementById('loading-overlay').style.display = 'block';
-        document.getElementById('gallery-img').style.display = 'none';
-        document.getElementById('gallery-video').style.display = 'none';
     }
 
     function hideLoading() {
@@ -286,26 +317,27 @@
 
         const img = document.getElementById("gallery-img");
         const video = document.getElementById("gallery-video");
-        const currentSrc = galleryImages[galleryIndex];
-
-        console.log("当前播放文件：", currentSrc);
+        const currentSrc = galleryImages[galleryIndex].startsWith('content/')
+            ? galleryImages[galleryIndex]
+            : `content/${folderName}/gallery/${galleryImages[galleryIndex]}`;
 
         showLoading();
 
         if (currentSrc.toLowerCase().endsWith('.mp4')) {
             img.style.display = 'none';
             video.style.display = 'block';
+
+            video.pause();
             video.src = currentSrc;
+            video.preload = "metadata";
             video.load();
 
             video.oncanplay = () => {
                 hideLoading();
             };
-            video.onerror = (e) => {
-                console.error("视频加载错误", e);
+            video.onerror = () => {
                 hideLoading();
             };
-            video.play().catch(() => {});
         } else {
             video.pause();
             video.style.display = 'none';
@@ -324,6 +356,7 @@
         }
     }
 
+    // 手动切换才触发动画和白框移动
     function nextImage() {
         if (galleryImages.length === 0) return;
         if (isTransitioning) return;
@@ -359,9 +392,10 @@
 
             const path = galleryImages[realIndex];
             if (path.toLowerCase().endsWith('.mp4')) {
-                img.src = 'video-thumb.png'; // 你需要准备一张视频缩略图
+                img.src = videoThumbCache.get(path) || 'video-thumb.png';
+                img.classList.add('video-thumb'); // 加播放按钮图标伪元素
             } else {
-                img.src = path;
+                img.src = path.startsWith('content/') ? path : `content/${folderName}/gallery/${path}`;
             }
 
             img.alt = `缩略图 ${realIndex + 1}`;
@@ -378,6 +412,7 @@
             thumbsTrack.appendChild(img);
         });
 
+        // 初始化位置为中间组第galleryIndex个
         currentPos = galleryImages.length + galleryIndex;
         currentTranslate = -stepPx * (currentPos - Math.floor(THUMB_COUNT / 2));
         setTrackPosition(false);
