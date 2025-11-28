@@ -89,8 +89,6 @@
     margin-top:30px;display:inline-block;color:#aaf;
     text-decoration:underline;cursor:pointer;
   }
-
-  /* 白框 - 选中边框 */
   #thumb-selected-box {
     position: absolute;
     top: 0; left: 0;
@@ -98,8 +96,9 @@
     border: 2px solid white;
     border-radius: 4px;
     pointer-events: none;
-    transition: none; /* 白框切换不动画 */
+    transition: none;
     z-index: 40;
+    transform: translateX(calc(50% - 40px)); /* 居中 */
   }
 </style>
 </head>
@@ -131,7 +130,7 @@
 <script>
 const THUMB_COUNT = 6, THUMB_W = 80, THUMB_GAP = 8, STEP_PX = THUMB_W + THUMB_GAP;
 let folderName = "", galleryImages = [], galleryIndex = 0;
-let thumbsTrack, thumbsWrapper, selectedBox;
+let thumbsTrack, selectedBox;
 let thumbsIndexes = [], currentPos = 0;
 let isTransitioning = false;
 
@@ -155,11 +154,9 @@ async function loadInfo(folder){
     if(galleryImages.length>0){
       galleryIndex=0;
       thumbsTrack=document.getElementById('thumbs-track');
-      thumbsWrapper=document.getElementById('thumbs-wrapper');
       selectedBox=document.getElementById('thumb-selected-box');
       setupThumbnails();
       showMedia();
-      updateSelectedBoxImmediate(true);
     } else clearMedia();
   }catch(e){
     setError("加载失败",`无法加载作品信息：${e}`);
@@ -211,11 +208,13 @@ function showMedia(){
   }
 }
 
-// 只初始化一次缩略图
+// 初始化缩略图，3倍重复实现循环
 function setupThumbnails(){
   thumbsTrack.innerHTML=''; thumbsIndexes=[];
   if(!galleryImages.length) return;
-  for(let i=0;i<3;i++) for(let j=0;j<galleryImages.length;j++) thumbsIndexes.push(j);
+  for(let i=0;i<3;i++)
+    for(let j=0;j<galleryImages.length;j++)
+      thumbsIndexes.push(j);
   thumbsIndexes.forEach((realIndex,pos)=>{
     const thumb=document.createElement('div');
     thumb.className='thumb';
@@ -232,42 +231,56 @@ function setupThumbnails(){
     thumb.onclick = () => {
       if(isTransitioning) return;
       galleryIndex=realIndex;
-      currentPos=pos; // 重要：点击直接更新 currentPos
-      updateSelectedBoxImmediate(true); // 白框切换无动画
+      currentPos=pos;
+      updateSelectedBoxImmediate(true);
       showMedia();
     };
     thumbsTrack.appendChild(thumb);
   });
+  // 初始位置在中间组对应galleryIndex
   currentPos=galleryImages.length+galleryIndex;
   updateSelectedBoxImmediate(true);
+  thumbsTrack.addEventListener('transitionend', onTransitionEnd);
 }
 
 function updateSelectedBoxImmediate(noAnim=false){
   if(!selectedBox) return;
-  // 计算容器滑动距离，使选中缩略图居中显示
+  // 计算容器偏移，保证选中缩略图居中
   let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
   const maxOffset = (thumbsTrack.childElementCount - THUMB_COUNT) * STEP_PX;
   if(offset < 0) offset = 0;
   if(offset > maxOffset) offset = maxOffset;
-  // 容器滑动有动画
   thumbsTrack.style.transition = 'transform 0.4s ease';
   thumbsTrack.style.transform = `translateX(${-offset}px)`;
-  // 白框无动画，位置固定中间
-  selectedBox.style.transition = noAnim ? 'none' : 'none'; // 永远无动画
-  selectedBox.style.transform = `translateX(${Math.floor(THUMB_COUNT/2)*STEP_PX}px)`;
+  // 白框固定中间，无动画
+  selectedBox.style.transition = 'none';
+  selectedBox.style.transform = `translateX(calc(50% - 40px))`;
+}
+
+function onTransitionEnd(){
+  const total = galleryImages.length;
+  // 边界检测，瞬间跳转无动画到中间组对应位置
+  if(currentPos < total){
+    currentPos += total;
+    let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
+    thumbsTrack.style.transition = 'none';
+    thumbsTrack.style.transform = `translateX(${-offset}px)`;
+  } else if(currentPos >= 2 * total){
+    currentPos -= total;
+    let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
+    thumbsTrack.style.transition = 'none';
+    thumbsTrack.style.transform = `translateX(${-offset}px)`;
+  }
+  isTransitioning = false;
 }
 
 function moveThumbByStep(step){
   if(isTransitioning) return;
   isTransitioning=true;
-  currentPos+=step;
-  const total=galleryImages.length;
-  if(currentPos < total) currentPos += total;
-  if(currentPos >= 2*total) currentPos -= total;
-  updateSelectedBoxImmediate(true);
+  currentPos += step;
   galleryIndex = thumbsIndexes[currentPos];
+  updateSelectedBoxImmediate();
   showMedia();
-  setTimeout(()=>{isTransitioning=false;},400);
 }
 
 function nextImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(1);}
