@@ -150,7 +150,6 @@
         transition: border-color 0.3s;
     }
     .thumb.selected {
-        /* 改为纯色白色边框 */
         box-shadow: none;
         border-color: white;
     }
@@ -245,7 +244,7 @@
 
             let desc = info.description || "无描述内容";
             let lines = desc.split("\n");
-            lines.shift();
+            if(lines.length > 0) lines.shift();
             document.getElementById('description').textContent = lines.join("\n");
 
             galleryImages = info.gallery || [];
@@ -287,26 +286,26 @@
 
         const img = document.getElementById("gallery-img");
         const video = document.getElementById("gallery-video");
-        const currentSrc = galleryImages[galleryIndex].startsWith('content/')
-            ? galleryImages[galleryIndex]
-            : `content/${folderName}/gallery/${galleryImages[galleryIndex]}`;
+        const currentSrc = galleryImages[galleryIndex];
+
+        console.log("当前播放文件：", currentSrc);
 
         showLoading();
 
-        // 判断文件类型，后缀为.mp4为视频
         if (currentSrc.toLowerCase().endsWith('.mp4')) {
             img.style.display = 'none';
             video.style.display = 'block';
             video.src = currentSrc;
             video.load();
-            video.play().catch(() => {}); // 自动播放可能被阻止，忽略错误
 
             video.oncanplay = () => {
                 hideLoading();
             };
-            video.onerror = () => {
+            video.onerror = (e) => {
+                console.error("视频加载错误", e);
                 hideLoading();
             };
+            video.play().catch(() => {});
         } else {
             video.pause();
             video.style.display = 'none';
@@ -358,13 +357,11 @@
             const img = document.createElement('img');
             img.className = 'thumb';
 
-            // 缩略图视频用默认封面图或特殊图，这里直接显示视频图标的缩略图需要你自己准备
             const path = galleryImages[realIndex];
             if (path.toLowerCase().endsWith('.mp4')) {
-                // 这里为了简单，缩略图用视频图标占位图
-                img.src = 'video-thumb.png'; // 你需要准备一张本地video-thumb.png，或换成其他图片路径
+                img.src = 'video-thumb.png'; // 你需要准备一张视频缩略图
             } else {
-                img.src = path.startsWith('content/') ? path : `content/${folderName}/gallery/${path}`;
+                img.src = path;
             }
 
             img.alt = `缩略图 ${realIndex + 1}`;
@@ -381,7 +378,6 @@
             thumbsTrack.appendChild(img);
         });
 
-        // 初始化位置为中间组第galleryIndex个
         currentPos = galleryImages.length + galleryIndex;
         currentTranslate = -stepPx * (currentPos - Math.floor(THUMB_COUNT / 2));
         setTrackPosition(false);
