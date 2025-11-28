@@ -132,7 +132,7 @@
 const THUMB_COUNT = 6, THUMB_W = 80, THUMB_GAP = 8, STEP_PX = THUMB_W + THUMB_GAP;
 let folderName = "", galleryImages = [], galleryIndex = 0;
 let thumbsTrack, thumbsWrapper, selectedBox;
-let thumbsIndexes = [], currentPos = 0;
+let currentPos = 0;
 let isTransitioning = false;
 
 function getQueryParam(p) { return new URLSearchParams(location.search).get(p); }
@@ -216,46 +216,40 @@ function showMedia(){
 
 function setupThumbnails(){
   thumbsTrack.innerHTML = "";
-  thumbsIndexes = [];
-  if(!galleryImages.length) return;
-  // 轨道长度是3倍galleryImages，实现无缝循环
+  // 3倍复制galleryImages，实现无缝循环
   for(let i = 0; i < 3; i++){
     for(let j = 0; j < galleryImages.length; j++){
-      thumbsIndexes.push(j);
+      const thumb = document.createElement('div');
+      thumb.className = 'thumb';
+      const path = galleryImages[j];
+      thumb.dataset.realIndex = j;
+      thumb.dataset.pos = i * galleryImages.length + j;
+
+      if(path.toLowerCase().endsWith('.mp4')){
+        thumb.classList.add('video-thumb');
+        thumb.style.backgroundColor = '#000';
+        generateVideoThumbnail(path.startsWith('content/') ? path : `content/${folderName}/gallery/${path}`)
+          .then(url => {
+            if(url) thumb.style.backgroundImage = `url(${url})`;
+          });
+      } else {
+        thumb.style.backgroundImage = `url(${path.startsWith('content/') ? path : `content/${folderName}/gallery/${path}`})`;
+      }
+
+      thumb.onclick = () => {
+        if(isTransitioning) return;
+        galleryIndex = j;
+        currentPos = galleryImages.length + j; // 跳到中间组对应的缩略图位置
+        updateTrackPosition(true);
+        showMedia();
+      };
+      thumbsTrack.appendChild(thumb);
     }
   }
-
-  thumbsIndexes.forEach((realIndex, pos) => {
-    const thumb = document.createElement('div');
-    thumb.className = 'thumb';
-    const path = galleryImages[realIndex];
-    thumb.dataset.realIndex = realIndex;
-    thumb.dataset.pos = pos;
-
-    if(path.toLowerCase().endsWith('.mp4')){
-      thumb.classList.add('video-thumb');
-      thumb.style.backgroundColor = '#000';
-      generateVideoThumbnail(path.startsWith('content/') ? path : `content/${folderName}/gallery/${path}`)
-        .then(url => {
-          if(url) thumb.style.backgroundImage = `url(${url})`;
-        });
-    } else {
-      thumb.style.backgroundImage = `url(${path.startsWith('content/') ? path : `content/${folderName}/gallery/${path}`})`;
-    }
-
-    thumb.onclick = () => {
-      if(isTransitioning) return;
-      galleryIndex = realIndex;
-      currentPos = galleryImages.length + realIndex;
-      updateTrackPosition(true);
-      showMedia();
-    };
-    thumbsTrack.appendChild(thumb);
-  });
-
-  // 设置轨道宽度
+  // 设置轨道宽度 = 图片数 * 3倍 * 每张缩略图宽度+间隙
   thumbsTrack.style.width = `${galleryImages.length * STEP_PX * 3}px`;
 
+  // 初始化 currentPos 到中间组第一个
   currentPos = galleryImages.length + galleryIndex;
 }
 
@@ -264,16 +258,7 @@ function updateTrackPosition(noAnim = false){
   const total = galleryImages.length;
   const oneSetLength = total * STEP_PX;
 
-  let offset = (currentPos - Math.floor(THUMB_COUNT / 2)) * STEP_PX;
-
-  // 边界跳转，无缝循环
-  if(offset < 0){
-    offset += oneSetLength;
-    currentPos += total;
-  } else if(offset >= oneSetLength){
-    offset -= oneSetLength;
-    currentPos -= total;
-  }
+  let offset = currentPos * STEP_PX;
 
   thumbsTrack.style.transition = noAnim ? 'none' : 'transform 0.4s ease';
   thumbsTrack.style.transform = `translateX(${-offset}px)`;
@@ -288,14 +273,16 @@ function moveStep(step){
   if(isTransitioning) return;
   isTransitioning = true;
   currentPos += step;
-
   const total = galleryImages.length;
+
+  // 计算当前galleryIndex，保证galleryIndex永远在0~total-1
+  galleryIndex = ((currentPos % total) + total) % total;
+
   updateTrackPosition(false);
-  galleryIndex = thumbsIndexes[currentPos];
   showMedia();
 
   setTimeout(() => {
-    // 动画结束后跳回中间区间，实现无缝循环
+    // 动画结束后瞬移回中间组，避免溢出视觉跳动
     if(currentPos < total){
       currentPos += total;
       updateTrackPosition(true);
