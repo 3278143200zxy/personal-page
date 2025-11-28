@@ -63,7 +63,7 @@
   }
   .thumbs-track {
     display:flex;gap:8px;height:65px;will-change:transform;
-    /* 注意这里不设置 transition，动画由JS控制 */
+    transition: transform 0.4s ease;
   }
   .thumb {
     position:relative;
@@ -89,6 +89,18 @@
     margin-top:30px;display:inline-block;color:#aaf;
     text-decoration:underline;cursor:pointer;
   }
+
+  /* 白框 - 选中边框 */
+  #thumb-selected-box {
+    position: absolute;
+    top: 0; left: 0;
+    width: 80px; height: 45px;
+    border: 2px solid white;
+    border-radius: 4px;
+    pointer-events: none;
+    transition: none; /* 白框切换不动画 */
+    z-index: 40;
+  }
 </style>
 </head>
 <body>
@@ -109,6 +121,7 @@
   <div class="thumbs-mask-left"></div>
   <div class="thumbs-mask-right"></div>
   <div class="thumbs-track" id="thumbs-track"></div>
+  <div id="thumb-selected-box"></div>
 </div>
 
 <h1 id="title">加载中...</h1>
@@ -118,7 +131,7 @@
 <script>
 const THUMB_COUNT = 6, THUMB_W = 80, THUMB_GAP = 8, STEP_PX = THUMB_W + THUMB_GAP;
 let folderName = "", galleryImages = [], galleryIndex = 0;
-let thumbsTrack, thumbsWrapper;
+let thumbsTrack, thumbsWrapper, selectedBox;
 let thumbsIndexes = [], currentPos = 0;
 let isTransitioning = false;
 
@@ -143,9 +156,10 @@ async function loadInfo(folder){
       galleryIndex=0;
       thumbsTrack=document.getElementById('thumbs-track');
       thumbsWrapper=document.getElementById('thumbs-wrapper');
+      selectedBox=document.getElementById('thumb-selected-box');
       setupThumbnails();
       showMedia();
-      updateThumbsPositionImmediate(true);
+      updateSelectedBoxImmediate(true);
     } else clearMedia();
   }catch(e){
     setError("加载失败",`无法加载作品信息：${e}`);
@@ -163,6 +177,7 @@ function clearMedia(){
   document.getElementById('gallery-video').style.display='none';
   document.getElementById('loading-overlay').style.display='none';
   if(thumbsTrack) thumbsTrack.innerHTML='';
+  if(selectedBox) selectedBox.style.transform='translateX(-9999px)';
 }
 
 function showLoading(){
@@ -196,7 +211,7 @@ function showMedia(){
   }
 }
 
-// 初始化3倍长度缩略图，实现循环视觉
+// 只初始化一次缩略图
 function setupThumbnails(){
   thumbsTrack.innerHTML=''; thumbsIndexes=[];
   if(!galleryImages.length) return;
@@ -217,25 +232,25 @@ function setupThumbnails(){
     thumb.onclick = () => {
       if(isTransitioning) return;
       galleryIndex=realIndex;
-      currentPos=pos;
-      updateThumbsPositionImmediate(true);
+      currentPos=pos; // 重要：点击直接更新 currentPos
+      updateSelectedBoxImmediate(true); // 白框切换无动画
       showMedia();
     };
     thumbsTrack.appendChild(thumb);
   });
   currentPos=galleryImages.length+galleryIndex;
-  updateThumbsPositionImmediate(true);
+  updateSelectedBoxImmediate(true);
 }
 
-// 直接瞬移缩略图轨道（无动画）
-function updateThumbsPositionImmediate(noAnim = false){
-  if(!thumbsTrack) return;
+// 关键修改，循环移动效果
+function updateSelectedBoxImmediate(noAnim=false){
+  if(!selectedBox) return;
   const total = galleryImages.length;
-  const totalLength = total * 3;
+  const totalThumbs = thumbsTrack.childElementCount; // 3倍 total
   const oneSetLength = total * STEP_PX;
 
-  // currentPos 允许超出范围，无缝循环
-  let offset = (currentPos - Math.floor(THUMB_COUNT / 2)) * STEP_PX;
+  // 允许offset超出范围，实现无缝循环
+  let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
 
   if(offset < 0){
     offset += oneSetLength;
@@ -247,80 +262,31 @@ function updateThumbsPositionImmediate(noAnim = false){
 
   thumbsTrack.style.transition = noAnim ? 'none' : 'transform 0.4s ease';
   thumbsTrack.style.transform = `translateX(${-offset}px)`;
+
+  // 白框固定在中间位置
+  selectedBox.style.transition = 'none';
+  selectedBox.style.transform = `translateX(${Math.floor(THUMB_COUNT/2)*STEP_PX}px)`;
 }
 
-// 右箭头点击
-function nextImage() {
-  if (!galleryImages.length || isTransitioning) return;
-
+function moveThumbByStep(step){
+  if(isTransitioning) return;
+  isTransitioning = true;
+  currentPos += step;
   const total = galleryImages.length;
-  const nextPos = currentPos + 1;
 
-  if (nextPos >= total * 2 - 1) {
-    // 边界时无动画瞬移整个容器向左一个缩略图宽度
-    thumbsTrack.style.transition = 'none';
+  // 保证 currentPos 在 [total, 2*total) 区间，方便循环处理
+  if(currentPos < total) currentPos += total;
+  else if(currentPos >= 2*total) currentPos -= total;
 
-    // 读取当前 transformX
-    const style = window.getComputedStyle(thumbsTrack);
-    const matrix = new DOMMatrixReadOnly(style.transform);
-    const currentTranslateX = matrix.m41;
-
-    const newTranslateX = currentTranslateX - STEP_PX;
-    thumbsTrack.style.transform = `translateX(${newTranslateX}px)`;
-
-    // 位置修正
-    currentPos = nextPos - total;
-
-    // 更新显示
-    galleryIndex = thumbsIndexes[currentPos];
-    showMedia();
-
-    return;
-  }
-
-  // 非边界，普通无动画切换
-  currentPos = nextPos;
-  thumbsTrack.style.transition = 'none';
-  const offset = (currentPos - Math.floor(THUMB_COUNT / 2)) * STEP_PX;
-  thumbsTrack.style.transform = `translateX(${-offset}px)`;
-
+  updateSelectedBoxImmediate(false);
   galleryIndex = thumbsIndexes[currentPos];
   showMedia();
+
+  setTimeout(() => { isTransitioning = false; }, 400);
 }
 
-// 左箭头点击（同理）
-function prevImage() {
-  if (!galleryImages.length || isTransitioning) return;
-
-  const total = galleryImages.length;
-  const prevPos = currentPos - 1;
-
-  if (prevPos < total) {
-    thumbsTrack.style.transition = 'none';
-
-    const style = window.getComputedStyle(thumbsTrack);
-    const matrix = new DOMMatrixReadOnly(style.transform);
-    const currentTranslateX = matrix.m41;
-
-    const newTranslateX = currentTranslateX + STEP_PX;
-    thumbsTrack.style.transform = `translateX(${newTranslateX}px)`;
-
-    currentPos = prevPos + total;
-
-    galleryIndex = thumbsIndexes[currentPos];
-    showMedia();
-
-    return;
-  }
-
-  currentPos = prevPos;
-  thumbsTrack.style.transition = 'none';
-  const offset = (currentPos - Math.floor(THUMB_COUNT / 2)) * STEP_PX;
-  thumbsTrack.style.transform = `translateX(${-offset}px)`;
-
-  galleryIndex = thumbsIndexes[currentPos];
-  showMedia();
-}
+function nextImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(1);}
+function prevImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(-1);}
 
 function generateVideoThumbnail(videoUrl){
   return new Promise(resolve=>{
