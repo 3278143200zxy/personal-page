@@ -4,124 +4,124 @@
 <meta charset="utf-8" />
 <title>作品详情</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  .topbar {
-    position:fixed;top:0;left:0;right:0;height:60px;
-    background:#000;display:flex;align-items:center;padding-left:25px;
-    font-weight:600;border-bottom:1px solid #111;z-index:9999;
-  }
-  .topbar a img {
-    height:48px;width:auto;cursor:pointer;
-  }
-  body {
-    font-family: Arial, sans-serif;
-    background:#222;color:#eee;
-    padding-top:60px;
-    max-width:700px;margin:0 auto;
-    padding-left:15px;padding-right:15px;
-  }
-  h1 {
-    font-size:3em;margin:15px 0 10px;text-align:left;text-transform:none;
-  }
-  .gallery-container {
-    width:100%;height:420px;background:#000;
-    margin:15px auto;position:relative;overflow:hidden;
-  }
-  .gallery-image,.gallery-video {
-    width:100%;height:100%;object-fit:contain;
-    background:#000;display:block;user-select:none;
-  }
-  #loading-overlay {
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    color:#fff;font-size:1.5em;font-weight:700;user-select:none;
-    pointer-events:none;display:none;z-index:25;
-  }
-  .arrow {
-    position:absolute;top:50%;transform:translateY(-50%);
-    font-size:40px;color:#fff;cursor:pointer;padding:10px;
-    user-select:none;z-index:20;background:rgba(0,0,0,0.3);
-    border-radius:50%;transition:background-color .3s;
-  }
-  .arrow:hover {
-    background:rgba(255,255,255,0.3);color:#ccc;
-  }
-  .left-arrow { left:10px; }
-  .right-arrow { right:10px; }
-  .thumbs-wrapper {
-    position:relative;margin:12px auto 0;
-    width:600px;height:65px;user-select:none;overflow:hidden;
-  }
-  .thumbs-mask-left, .thumbs-mask-right {
-    position:absolute;top:0;width:50px;height:65px;
-    pointer-events:none;z-index:30;
-  }
-  .thumbs-mask-left {
-    left:0;background:linear-gradient(to right,#222 0%,transparent 100%);
-  }
-  .thumbs-mask-right {
-    right:0;background:linear-gradient(to left,#222 0%,transparent 100%);
-  }
-  .thumbs-track {
-    display:flex;gap:8px;height:65px;will-change:transform;
-    transition: transform 0.4s ease; /* 滑动动画 */
-  }
-  .thumb {
-    position:relative;
-    width:80px;height:45px;
-    background:#000 no-repeat center/cover;
-    border:2px solid transparent;border-radius:4px;
-    cursor:pointer;flex-shrink:0;transition:none;
-  }
-  .thumb.video-thumb::after {
-    content:"▶";
-    position:absolute;top:50%;left:50%;
-    transform:translate(-50%,-50%);
-    font-size:24px;color:rgba(255,255,255,0.8);
-    pointer-events:none;
-  }
-  .thumb.selected {
-    border-color:#fff;
-  }
-  p.description {
-    font-size:1.1em;line-height:1.5;white-space:pre-wrap;margin-top:15px;
-  }
-  .back-link {
-    margin-top:30px;display:inline-block;color:#aaf;
-    text-decoration:underline;cursor:pointer;
-  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  .topbar {
+    position:fixed;top:0;left:0;right:0;height:60px;
+    background:#000;display:flex;align-items:center;padding-left:25px;
+    font-weight:600;border-bottom:1px solid #111;z-index:9999;
+  }
+  .topbar a img {
+    height:48px;width:auto;cursor:pointer;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background:#222;color:#eee;
+    padding-top:60px;
+    max-width:700px;margin:0 auto;
+    padding-left:15px;padding-right:15px;
+  }
+  h1 {
+    font-size:3em;margin:15px 0 10px;text-align:left;text-transform:none;
+  }
+  .gallery-container {
+    width:100%;height:420px;background:#000;
+    margin:15px auto;position:relative;overflow:hidden;
+  }
+  .gallery-image,.gallery-video {
+    width:100%;height:100%;object-fit:contain;
+    background:#000;display:block;user-select:none;
+  }
+  #loading-overlay {
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    color:#fff;font-size:1.5em;font-weight:700;user-select:none;
+    pointer-events:none;display:none;z-index:25;
+  }
+  .arrow {
+    position:absolute;top:50%;transform:translateY(-50%);
+    font-size:40px;color:#fff;cursor:pointer;padding:10px;
+    user-select:none;z-index:20;background:rgba(0,0,0,0.3);
+    border-radius:50%;transition:background-color .3s;
+  }
+  .arrow:hover {
+    background:rgba(255,255,255,0.3);color:#ccc;
+  }
+  .left-arrow { left:10px; }
+  .right-arrow { right:10px; }
+  .thumbs-wrapper {
+    position:relative;margin:12px auto 0;
+    width:600px;height:65px;user-select:none;overflow:hidden;
+  }
+  .thumbs-mask-left, .thumbs-mask-right {
+    position:absolute;top:0;width:50px;height:65px;
+    pointer-events:none;z-index:30;
+  }
+  .thumbs-mask-left {
+    left:0;background:linear-gradient(to right,#222 0%,transparent 100%);
+  }
+  .thumbs-mask-right {
+    right:0;background:linear-gradient(to left,#222 0%,transparent 100%);
+  }
+  .thumbs-track {
+    display:flex;gap:8px;height:65px;will-change:transform;
+    transition: transform 0.4s ease;
+  }
+  .thumb {
+    position:relative;
+    width:80px;height:45px;
+    background:#000 no-repeat center/cover;
+    border:2px solid transparent;border-radius:4px;
+    cursor:pointer;flex-shrink:0;transition:none;
+  }
+  .thumb.video-thumb::after {
+    content:"▶";
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    font-size:24px;color:rgba(255,255,255,0.8);
+    pointer-events:none;
+  }
+  .thumb.selected {
+    border-color:#fff;
+  }
+  p.description {
+    font-size:1.1em;line-height:1.5;white-space:pre-wrap;margin-top:15px;
+  }
+  .back-link {
+    margin-top:30px;display:inline-block;color:#aaf;
+    text-decoration:underline;cursor:pointer;
+  }
 
-  /* 白框 - 选中边框，固定在中间位置 */
-  #thumb-selected-box {
-    position: absolute;
-    top: 0; left: 0;
-    width: 80px; height: 45px;
-    border: 2px solid white;
-    border-radius: 4px;
-    pointer-events: none;
-    transition: none; /* 白框切换不动画 */
-    z-index: 40;
-  }
+  /* 白框 - 选中边框 */
+  #thumb-selected-box {
+    position: absolute;
+    top: 0; left: 0;
+    width: 80px; height: 45px;
+    border: 2px solid white;
+    border-radius: 4px;
+    pointer-events: none;
+    transition: none; /* 白框切换不动画 */
+    z-index: 40;
+  }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <a href="index.html"><img src="logo.png" alt="logo" /></a>
+  <a href="index.html"><img src="logo.png" alt="logo" /></a>
 </div>
 
 <div class="gallery-container">
-  <div id="loading-overlay">Loading...</div>
-  <div class="arrow left-arrow" onclick="prevImage()">❮</div>
-  <img id="gallery-img" class="gallery-image" src="" alt="作品图片" draggable="false" style="display:none;" />
-  <video id="gallery-video" class="gallery-video" controls style="display:none;"></video>
-  <div class="arrow right-arrow" onclick="nextImage()">❯</div>
+  <div id="loading-overlay">Loading...</div>
+  <div class="arrow left-arrow" onclick="prevImage()">❮</div>
+  <img id="gallery-img" class="gallery-image" src="" alt="作品图片" draggable="false" style="display:none;" />
+  <video id="gallery-video" class="gallery-video" controls style="display:none;"></video>
+  <div class="arrow right-arrow" onclick="nextImage()">❯</div>
 </div>
 
 <div class="thumbs-wrapper" id="thumbs-wrapper">
-  <div class="thumbs-mask-left"></div>
-  <div class="thumbs-mask-right"></div>
-  <div class="thumbs-track" id="thumbs-track"></div>
-  <div id="thumb-selected-box"></div>
+  <div class="thumbs-mask-left"></div>
+  <div class="thumbs-mask-right"></div>
+  <div class="thumbs-track" id="thumbs-track"></div>
+  <div id="thumb-selected-box"></div>
 </div>
 
 <h1 id="title">加载中...</h1>
@@ -129,295 +129,183 @@
 <a href="index.html" class="back-link">← 返回作品集</a>
 
 <script>
-// --- 配置常量 ---
-const THUMB_COUNT = 6;   // 可见缩略图数量
-const THUMB_W = 80;      // 缩略图宽度
-const THUMB_GAP = 8;     // 缩略图间距
-const STEP_PX = THUMB_W + THUMB_GAP; // 每步移动的像素距离
-
-// --- 状态变量 ---
-let folderName = "";
-let galleryImages = []; // 真实媒体列表
-let galleryIndex = 0;   // 真实媒体索引 [0, N-1]
-let currentPos = 0;     // 三倍轨道中的当前位置索引
-let thumbsIndexes = []; // 存储三倍轨道中每个位置对应的 galleryImages 索引
-let isTransitioning = false; // 防止快速重复点击
-
-// --- DOM 元素引用 ---
+const THUMB_COUNT = 6, THUMB_W = 80, THUMB_GAP = 8, STEP_PX = THUMB_W + THUMB_GAP;
+let folderName = "", galleryImages = [], galleryIndex = 0;
 let thumbsTrack, thumbsWrapper, selectedBox;
+let thumbsIndexes = [], currentPos = 0;
+let isTransitioning = false;
 
-// 辅助函数：获取 URL 查询参数
 function getQueryParam(p){return new URLSearchParams(location.search).get(p);}
 
-/**
- * 加载作品信息
- */
 async function loadInfo(folder){
-  folderName = folder || "";
-  if(!folder){
-    setError("未指定作品文件夹", "请从主页点击作品进入详情页面。");
-    return;
-  }
-  try {
-    // 模拟加载数据。实际应用中应替换为真实路径
-    // 注意: 为了让代码独立运行，这里设置了模拟数据
-    let info = {
-      title: "示例循环画廊",
-      description: "\n这是一个演示无缝循环滑动的示例。\n\n媒体文件可以包含图片和视频 (.mp4)。",
-      gallery: ["1.jpg", "2.jpg", "3.mp4", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.mp4"]
-    };
-    
-    // 在实际生产环境中，您会使用如下代码加载：
-    // let res=await fetch(`content/${folder}/info.json`);
-    // if(!res.ok)throw"未找到 info.json";
-    // let info=await res.json();
-
-    document.getElementById('title').textContent = info.title||folder;
-    let d=info.description||"无描述内容";
-    d=d.split("\n").slice(1).join("\n"); // 移除第一行空行
-    document.getElementById('description').textContent=d;
-    galleryImages=info.gallery||[];
-    
-    if(galleryImages.length>0){
-      galleryIndex=0;
-      thumbsTrack=document.getElementById('thumbs-track');
-      thumbsWrapper=document.getElementById('thumbs-wrapper');
-      selectedBox=document.getElementById('thumb-selected-box');
-      setupThumbnails();
-      showMedia();
-      // 初始设置白框位置并使轨道归位
-      updateSelectedBoxImmediate(true); 
-    } else clearMedia();
-  }catch(e){
-    setError("加载失败",`无法加载作品信息：${e}`);
-  }
+  folderName = folder || "";
+  if(!folder){
+    setError("未指定作品文件夹", "请从主页点击作品进入详情页面。");
+    return;
+  }
+  try {
+    let res=await fetch(`content/${folder}/info.json`);
+    if(!res.ok)throw"未找到 info.json";
+    let info=await res.json();
+    document.getElementById('title').textContent = info.title||folder;
+    let d=info.description||"无描述内容";
+    d=d.split("\n").slice(1).join("\n");
+    document.getElementById('description').textContent=d;
+    galleryImages=info.gallery||[];
+    if(galleryImages.length>0){
+      galleryIndex=0;
+      thumbsTrack=document.getElementById('thumbs-track');
+      thumbsWrapper=document.getElementById('thumbs-wrapper');
+      selectedBox=document.getElementById('thumb-selected-box');
+      setupThumbnails();
+      showMedia();
+      updateSelectedBoxImmediate(true);
+    } else clearMedia();
+  }catch(e){
+    setError("加载失败",`无法加载作品信息：${e}`);
+  }
 }
 
 function setError(title,text){
-  document.getElementById('title').textContent=title;
-  document.getElementById('description').textContent=text;
-  clearMedia();
+  document.getElementById('title').textContent=title;
+  document.getElementById('description').textContent=text;
+  clearMedia();
 }
 
 function clearMedia(){
-  document.getElementById('gallery-img').style.display='none';
-  document.getElementById('gallery-video').style.display='none';
-  document.getElementById('loading-overlay').style.display='none';
-  if(thumbsTrack) thumbsTrack.innerHTML='';
-  if(selectedBox) selectedBox.style.transform='translateX(-9999px)';
+  document.getElementById('gallery-img').style.display='none';
+  document.getElementById('gallery-video').style.display='none';
+  document.getElementById('loading-overlay').style.display='none';
+  if(thumbsTrack) thumbsTrack.innerHTML='';
+  if(selectedBox) selectedBox.style.transform='translateX(-9999px)';
 }
 
 function showLoading(){
-  document.getElementById('loading-overlay').style.display='block';
-  document.getElementById('gallery-img').style.display='none';
-  document.getElementById('gallery-video').style.display='none';
+  document.getElementById('loading-overlay').style.display='block';
+  document.getElementById('gallery-img').style.display='none';
+  document.getElementById('gallery-video').style.display='none';
 }
 function hideLoading(){document.getElementById('loading-overlay').style.display='none';}
 
-/**
- * 更新主展示区的媒体
- */
 function showMedia(){
-  if(!galleryImages.length)return;
-  const img=document.getElementById('gallery-img');
-  const video=document.getElementById('gallery-video');
-  
-  // 假设媒体文件路径：content/[folder]/gallery/[filename]
-  // 注意：此处的路径可能需要根据您的实际服务器结构调整
-  const src=galleryImages[galleryIndex].startsWith('content/')
-    ?galleryImages[galleryIndex]
-    :`content/${folderName}/gallery/${galleryImages[galleryIndex]}`;
-  
-  showLoading();
-  
-  if(src.toLowerCase().endsWith('.mp4')){
-    img.style.display='none';
-    video.style.display='block';
-    video.src=src;
-    video.load();
-    video.play().catch(()=>{});
-    // 视频加载完成或出错时隐藏加载指示
-    video.oncanplay=video.onerror=()=>hideLoading();
-  } else {
-    video.pause();
-    video.style.display='none';
-    img.style.display='block';
-    // 图片加载完成或出错时隐藏加载指示
-    img.onload=()=>hideLoading();
-    img.onerror=()=>hideLoading();
-    img.src=src;
-    img.alt=`作品图片 ${galleryIndex+1} / ${galleryImages.length}`;
-  }
+  if(!galleryImages.length)return;
+  const img=document.getElementById('gallery-img');
+  const video=document.getElementById('gallery-video');
+  const src=galleryImages[galleryIndex].startsWith('content/')?galleryImages[galleryIndex]:`content/${folderName}/gallery/${galleryImages[galleryIndex]}`;
+  showLoading();
+  if(src.toLowerCase().endsWith('.mp4')){
+    img.style.display='none';
+    video.style.display='block';
+    video.src=src;
+    video.load();
+    video.play().catch(()=>{});
+    video.oncanplay=video.onerror=()=>hideLoading();
+  } else {
+    video.pause();
+    video.style.display='none';
+    img.style.display='block';
+    img.onload=()=>hideLoading();
+    img.onerror=()=>hideLoading();
+    img.src=src;
+    img.alt=`作品图片 ${galleryIndex+1} / ${galleryImages.length}`;
+  }
 }
 
-/**
- * 初始化缩略图轨道（三倍复制实现循环）
- */
+// 只初始化一次缩略图
 function setupThumbnails(){
-  thumbsTrack.innerHTML=''; thumbsIndexes=[];
-  if(!galleryImages.length) return;
-  
-  // 1. 构建三倍索引列表
-  for(let i=0;i<3;i++) {
-    for(let j=0;j<galleryImages.length;j++) {
-      thumbsIndexes.push(j);
-    }
-  }
-
-  // 2. 渲染缩略图
-  thumbsIndexes.forEach((realIndex,pos)=>{
-    const thumb=document.createElement('div');
-    thumb.className='thumb';
-    const path=galleryImages[realIndex];
-    thumb.dataset.realIndex=realIndex; 
-    thumb.dataset.pos=pos;
-    
-    // 假设媒体文件路径（同上 showMedia）
-    const fullPath = path.startsWith('content/')
-      ? path
-      : `content/${folderName}/gallery/${path}`;
-    
-    if(path.toLowerCase().endsWith('.mp4')){
-      thumb.classList.add('video-thumb');
-      thumb.style.backgroundColor='#000';
-      // 异步生成视频缩略图，生产环境中需要确保路径和跨域设置正确
-      // generateVideoThumbnail(fullPath)
-      //   .then(url=>{if(url)thumb.style.backgroundImage=`url(${url})`});
-      // 示例中跳过视频缩略图生成
-    } else {
-      thumb.style.backgroundImage = `url(${fullPath})`;
-    }
-    
-    // 3. 绑定点击事件
-    thumb.onclick = () => {
-      if(isTransitioning) return;
-      galleryIndex=realIndex;
-      currentPos=pos; // 重要：点击直接更新 currentPos 到点击的位置
-      
-      // 确保点击后 currentPos 位于中间列表 [total, 2*total)
-      const total = galleryImages.length;
-      while (currentPos < total) currentPos += total;
-      while (currentPos >= 2 * total) currentPos -= total;
-
-      updateSelectedBoxImmediate(true); // 切换后，白框固定在中间，轨道滑动到正确位置
-      showMedia();
-    };
-    thumbsTrack.appendChild(thumb);
-  });
-  
-  // 4. 初始位置：设置 currentPos 指向第二个列表中的第0个元素
-  currentPos = galleryImages.length + galleryIndex; 
-  updateSelectedBoxImmediate(true);
+  thumbsTrack.innerHTML=''; thumbsIndexes=[];
+  if(!galleryImages.length) return;
+  for(let i=0;i<3;i++) for(let j=0;j<galleryImages.length;j++) thumbsIndexes.push(j);
+  thumbsIndexes.forEach((realIndex,pos)=>{
+    const thumb=document.createElement('div');
+    thumb.className='thumb';
+    const path=galleryImages[realIndex];
+    thumb.dataset.realIndex=realIndex; thumb.dataset.pos=pos;
+    if(path.toLowerCase().endsWith('.mp4')){
+      thumb.classList.add('video-thumb');
+      thumb.style.backgroundColor='#000';
+      generateVideoThumbnail(path.startsWith('content/')?path:`content/${folderName}/gallery/${path}`)
+        .then(url=>{if(url)thumb.style.backgroundImage=`url(${url})`});
+    } else {
+      thumb.style.backgroundImage = `url(${path.startsWith('content/')?path:`content/${folderName}/gallery/${path}`})`;
+    }
+    thumb.onclick = () => {
+      if(isTransitioning) return;
+      galleryIndex=realIndex;
+      currentPos=pos; // 重要：点击直接更新 currentPos
+      updateSelectedBoxImmediate(true); // 白框切换无动画
+      showMedia();
+    };
+    thumbsTrack.appendChild(thumb);
+  });
+  currentPos=galleryImages.length+galleryIndex;
+  updateSelectedBoxImmediate(true);
 }
 
-/**
- * 循环移动的核心逻辑：更新轨道位置和处理回跳
- * @param {boolean} noAnim - 是否禁用动画（用于初始化和回跳）
- */
+// 关键修改，循环移动效果
 function updateSelectedBoxImmediate(noAnim=false){
-  if(!selectedBox || !thumbsTrack || galleryImages.length === 0) return;
-  
-  const total = galleryImages.length;
-  const oneSetLengthPx = total * STEP_PX;
-  // 计算当前位置应有的总偏移量，使选中项位于轨道中央（THUMB_COUNT/2 所在的位置）
-  const centerIndex = Math.floor(THUMB_COUNT/2);
+  if(!selectedBox) return;
+  const total = galleryImages.length;
+  const totalThumbs = thumbsTrack.childElementCount; // 3倍 total
+  const oneSetLength = total * STEP_PX;
 
-  // 轨道需要移动的像素距离（负值向左移动）
-  let offsetPx = (currentPos - centerIndex) * STEP_PX;
+  // 允许offset超出范围，实现无缝循环
+  let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
 
-  // --- 1. 处理无缝循环回跳 (Jump) ---
-  if(currentPos < total){
-    // 滚动到第一份列表，需要立即跳回第二份
-    currentPos += total;
-    offsetPx += oneSetLengthPx;
-    // 强制无动画执行回跳
-    thumbsTrack.style.transition = 'none';
-    thumbsTrack.style.transform = `translateX(${-offsetPx}px)`;
-    
-    // 必须等待浏览器应用 'none' 样式后，再重新启用动画
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!noAnim) {
-          thumbsTrack.style.transition = 'transform 0.4s ease';
-        }
-      });
-    });
-  } else if(currentPos >= 2 * total){
-    // 滚动到第三份列表，需要立即跳回第二份
-    currentPos -= total;
-    offsetPx -= oneSetLengthPx;
-    // 强制无动画执行回跳
-    thumbsTrack.style.transition = 'none';
-    thumbsTrack.style.transform = `translateX(${-offsetPx}px)`;
+  if(offset < 0){
+    offset += oneSetLength;
+    currentPos += total;
+  } else if(offset >= oneSetLength){
+    offset -= oneSetLength;
+    currentPos -= total;
+  }
 
-    // 必须等待浏览器应用 'none' 样式后，再重新启用动画
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!noAnim) {
-          thumbsTrack.style.transition = 'transform 0.4s ease';
-        }
-      });
-    });
-  } else {
-    // 正常滑动
-    thumbsTrack.style.transition = noAnim ? 'none' : 'transform 0.4s ease';
-    thumbsTrack.style.transform = `translateX(${-offsetPx}px)`;
-  }
+  thumbsTrack.style.transition = noAnim ? 'none' : 'transform 0.4s ease';
+  thumbsTrack.style.transform = `translateX(${-offset}px)`;
 
-  // --- 2. 白框固定定位 ---
-  // 白框固定在中心位置
-  selectedBox.style.transition = 'none';
-  selectedBox.style.transform = `translateX(${centerIndex * STEP_PX}px)`;
+  // 白框固定在中间位置
+  selectedBox.style.transition = 'none';
+  selectedBox.style.transform = `translateX(${Math.floor(THUMB_COUNT/2)*STEP_PX}px)`;
 }
 
-
-/**
- * 移动缩略图轨道一步（主要由箭头触发）
- */
 function moveThumbByStep(step){
-  if(isTransitioning || galleryImages.length === 0) return;
-  isTransitioning = true;
-  
-  // 更新当前位置
-  currentPos += step;
-  
-  // 更新真实索引
-  const total = galleryImages.length;
-  // 确保 galleryIndex 始终在 [0, total-1] 范围内
-  galleryIndex = (galleryIndex + step) % total;
-  if (galleryIndex < 0) galleryIndex += total;
+  if(isTransitioning) return;
+  isTransitioning = true;
+  currentPos += step;
+  const total = galleryImages.length;
 
-  showMedia();
-  updateSelectedBoxImmediate(false); // 启用动画滑动
+  // 保证 currentPos 在 [total, 2*total) 区间，方便循环处理
+  if(currentPos < total) currentPos += total;
+  else if(currentPos >= 2*total) currentPos -= total;
 
-  // 禁用快速点击，等待滑动动画完成
-  setTimeout(() => { isTransitioning = false; }, 400);
+  updateSelectedBoxImmediate(false);
+  galleryIndex = thumbsIndexes[currentPos];
+  showMedia();
+
+  setTimeout(() => { isTransitioning = false; }, 400);
 }
 
-function nextImage(){moveThumbByStep(1);}
-function prevImage(){moveThumbByStep(-1);}
+function nextImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(1);}
+function prevImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(-1);}
 
-/**
- * 视频缩略图生成函数（为了保持代码完整性保留，但示例中未启用）
- */
 function generateVideoThumbnail(videoUrl){
-  return new Promise(resolve=>{
-    const video=document.createElement('video');
-    video.src=videoUrl;
-    video.crossOrigin="anonymous";
-    video.muted=true;
-    video.playsInline=true;
-    video.currentTime=0.1;
-    video.addEventListener('loadeddata',()=>{
-      const canvas=document.createElement('canvas');
-      canvas.width=video.videoWidth;
-      canvas.height=video.videoHeight;
-      const ctx=canvas.getContext('2d');
-      ctx.drawImage(video,0,0,canvas.width,canvas.height);
-      resolve(canvas.toDataURL('image/png'));
-    },{once:true});
-    video.onerror=()=>resolve(null);
-  });
+  return new Promise(resolve=>{
+    const video=document.createElement('video');
+    video.src=videoUrl;
+    video.crossOrigin="anonymous";
+    video.muted=true;
+    video.playsInline=true;
+    video.currentTime=0.1;
+    video.addEventListener('loadeddata',()=>{
+      const canvas=document.createElement('canvas');
+      canvas.width=video.videoWidth;
+      canvas.height=video.videoHeight;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(video,0,0,canvas.width,canvas.height);
+      resolve(canvas.toDataURL('image/png'));
+    },{once:true});
+    video.onerror=()=>resolve(null);
+  });
 }
 
 window.onload=()=>loadInfo(getQueryParam('folder'));
