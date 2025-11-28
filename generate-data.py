@@ -3,6 +3,8 @@ import json
 
 CONTENT_DIR = 'content'
 DESCRIPTION_FILE = 'description.txt'
+
+VIDEO_EXTENSIONS = {'.mp4', '.webm', '.mov', '.avi', '.mkv'}
 IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.webp'}
 
 def find_main_image(folder_path):
@@ -14,6 +16,7 @@ def find_main_image(folder_path):
     return None
 
 def read_description(folder_path):
+    """读取 description.txt，返回非空行列表"""
     desc_path = os.path.join(folder_path, DESCRIPTION_FILE)
     if os.path.isfile(desc_path):
         with open(desc_path, 'r', encoding='utf-8') as f:
@@ -21,31 +24,36 @@ def read_description(folder_path):
             return lines
     return []
 
-def read_gallery_images(folder_path):
-    """读取内容文件夹内 gallery/ 里的所有图片，返回图片相对路径数组"""
+def read_gallery_files(folder_path):
+    """读取 gallery 文件夹内视频和图片文件，视频路径放前，图片路径放后"""
     gallery_path = os.path.join(folder_path, "gallery")
     if not os.path.isdir(gallery_path):
         return []
 
+    videos = []
     images = []
+
     for file_name in os.listdir(gallery_path):
         ext = os.path.splitext(file_name)[1].lower()
-        if ext in IMAGE_EXTENSIONS:
-            img_path = os.path.join(gallery_path, file_name).replace('\\', '/')
-            images.append(img_path)
+        full_path = os.path.join(gallery_path, file_name).replace('\\', '/')
+        if ext in VIDEO_EXTENSIONS:
+            videos.append(full_path)
+        elif ext in IMAGE_EXTENSIONS:
+            images.append(full_path)
 
-    # 排序保证稳定顺序
+    videos.sort()
     images.sort()
-    return images
 
-def generate_info_json(folder_name, folder_path, main_image_path, description_lines, gallery_images):
+    return videos + images
+
+def generate_info_json(folder_name, folder_path, main_image_path, description_lines, gallery_files):
     title_line = description_lines[0] if description_lines else folder_name.replace("_", " ").replace("-", " ").title()
     description_text = "\n".join(description_lines[1:]) if len(description_lines) > 1 else ""
 
     info = {
         "title": title_line,
         "image": main_image_path,
-        "gallery": gallery_images,   # ⭐ 新增：子图片数组
+        "gallery": gallery_files,
         "description": description_text
     }
 
@@ -72,12 +80,10 @@ def main():
                 continue
 
             description_lines = read_description(folder_path)
-            gallery_images = read_gallery_images(folder_path)
+            gallery_files = read_gallery_files(folder_path)
 
-            # 生成单独 info.json
-            generate_info_json(folder_name, folder_path, main_image, description_lines, gallery_images)
+            generate_info_json(folder_name, folder_path, main_image, description_lines, gallery_files)
 
-            # 获取标题（显示在 index 页面）
             title_line = description_lines[0] if description_lines else folder_name.replace("_", " ").replace("-", " ").title()
 
             items.append({
@@ -86,7 +92,6 @@ def main():
                 "title": title_line
             })
 
-    # 写入 index 页的数据
     output = {
         "infoPage": "info.html",
         "items": items

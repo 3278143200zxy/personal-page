@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <title>作品详情</title>
 <style>
+    /* ...（你的样式保持不变）... */
     * {
         margin: 0;
         padding: 0;
@@ -43,27 +44,34 @@
         text-align: left;
         text-transform: none;
     }
-
-    /* Gallery 外框 */
     .gallery-container {
         width: 100%;
         height: 420px;
         background: black;
-        border-radius: 0;
         margin: 0 auto;
         position: relative;
         overflow: hidden;
         margin-top: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    .gallery-image {
+    /* 替换原来的gallery-image为容器 */
+    #gallery-display {
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: black;
+        user-select: none;
+    }
+    #gallery-display img, #gallery-display video {
+        max-width: 100%;
+        max-height: 100%;
         display: block;
         user-select: none;
     }
-    /* loading文字覆盖层 */
     #loading-overlay {
         position: absolute;
         top: 50%;
@@ -77,7 +85,6 @@
         display: none;
         z-index: 25;
     }
-    /* 左右箭头 */
     .arrow {
         position: absolute;
         top: 50%;
@@ -98,8 +105,6 @@
     }
     .left-arrow { left: 10px; }
     .right-arrow { right: 10px; }
-
-    /* 缩略图区域容器 */
     .thumbs-wrapper {
         position: relative;
         margin-top: 12px;
@@ -110,8 +115,6 @@
         user-select: none;
         overflow: hidden;
     }
-
-    /* 遮罩层 - 左右渐隐 */
     .thumbs-mask-left, .thumbs-mask-right {
         position: absolute;
         top: 0;
@@ -128,8 +131,6 @@
         right: 0;
         background: linear-gradient(to left, #222 0%, transparent 100%);
     }
-
-    /* 缩略图滑动条 */
     .thumbs-track {
         display: flex;
         gap: 8px;
@@ -137,7 +138,6 @@
         height: 65px;
         will-change: transform;
     }
-
     .thumb {
         width: 80px;
         height: 45px;
@@ -150,11 +150,9 @@
         transition: border-color 0.3s;
     }
     .thumb.selected {
-        /* 使用 box-shadow 替代 border-color 减少闪烁 */
-        border-color: transparent;
-        box-shadow: 0 0 8px 2px white;
+        box-shadow: none;
+        border-color: white;
     }
-
     p.description {
         font-size: 1.1em;
         line-height: 1.5;
@@ -181,7 +179,7 @@
 <div class="gallery-container">
     <div id="loading-overlay">Loading...</div>
     <div class="arrow left-arrow" onclick="prevImage()">❮</div>
-    <img id="gallery-img" class="gallery-image" src="" alt="作品图片" draggable="false" />
+    <div id="gallery-display"></div>
     <div class="arrow right-arrow" onclick="nextImage()">❯</div>
 </div>
 
@@ -192,9 +190,7 @@
 </div>
 
 <h1 id="title">加载中...</h1>
-
 <p class="description" id="description"></p>
-
 <a href="index.html" class="back-link">← 返回作品集</a>
 
 <script>
@@ -216,9 +212,7 @@
     let currentTranslate = 0;
     let isTransitioning = false;
 
-    // 三倍复制的缩略图索引数组
     let thumbsIndexes = [];
-    // 缩略图当前位置索引（在三倍数组中）
     let currentPos = 0;
 
     async function loadInfo(folder) {
@@ -226,7 +220,7 @@
         if (!folder) {
             document.getElementById('title').textContent = "未指定作品文件夹";
             document.getElementById('description').textContent = "请从主页点击作品进入详情页面。";
-            document.getElementById('gallery-img').style.display = 'none';
+            document.getElementById('gallery-display').style.display = 'none';
             document.getElementById('loading-overlay').style.display = 'none';
             clearThumbnails();
             return;
@@ -254,7 +248,7 @@
                 setupThumbnails();
                 showImage();
             } else {
-                document.getElementById('gallery-img').style.display = 'none';
+                document.getElementById('gallery-display').style.display = 'none';
                 document.getElementById('loading-overlay').style.display = 'none';
                 clearThumbnails();
             }
@@ -262,40 +256,67 @@
         } catch (e) {
             document.getElementById('title').textContent = "加载失败";
             document.getElementById('description').textContent = `无法加载作品信息：${e.message}`;
-            document.getElementById('gallery-img').style.display = 'none';
+            document.getElementById('gallery-display').style.display = 'none';
             document.getElementById('loading-overlay').style.display = 'none';
             clearThumbnails();
         }
     }
 
-    function showLoading() {
-        document.getElementById('loading-overlay').style.display = 'block';
-        document.getElementById('gallery-img').style.display = 'none';
-    }
-
-    function hideLoading() {
-        document.getElementById('loading-overlay').style.display = 'none';
-        document.getElementById('gallery-img').style.display = 'block';
-    }
-
     function showImage() {
         if (galleryImages.length === 0) return;
-        const img = document.getElementById("gallery-img");
-        showLoading();
 
-        img.onload = () => {
-            hideLoading();
-            updateSelectedThumb();
-        };
-        img.onerror = () => {
-            hideLoading();
-            // 这里可以显示错误提示图
-        };
+        const container = document.getElementById("gallery-display");
+        const loading = document.getElementById("loading-overlay");
 
-        img.src = galleryImages[galleryIndex].startsWith('content/') 
-            ? galleryImages[galleryIndex] 
-            : `content/${folderName}/gallery/${galleryImages[galleryIndex]}`;
-        img.alt = `作品图片 ${galleryIndex + 1} / ${galleryImages.length}`;
+        loading.style.display = 'block';
+        container.innerHTML = ''; // 清空之前的内容
+
+        const src = galleryImages[galleryIndex];
+        const fullSrc = src.startsWith('content/') ? src : `content/${folderName}/gallery/${src}`;
+
+        // 判断文件扩展名是否是视频
+        const ext = src.split('.').pop().toLowerCase();
+
+        if (['mp4', 'webm', 'mov', 'avi', 'mkv'].includes(ext)) {
+            // 视频播放
+            const video = document.createElement('video');
+            video.src = fullSrc;
+            video.controls = true;
+            video.autoplay = true;
+            video.muted = true;
+            video.loop = true;
+            video.style.maxWidth = '100%';
+            video.style.maxHeight = '100%';
+
+            video.oncanplay = () => {
+                loading.style.display = 'none';
+            };
+            video.onerror = () => {
+                loading.style.display = 'none';
+                container.textContent = '视频加载失败';
+            };
+            container.appendChild(video);
+
+        } else {
+            // 图片显示
+            const img = document.createElement('img');
+            img.src = fullSrc;
+            img.alt = `作品图片 ${galleryIndex + 1} / ${galleryImages.length}`;
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = '100%';
+            img.draggable = false;
+
+            img.onload = () => {
+                loading.style.display = 'none';
+            };
+            img.onerror = () => {
+                loading.style.display = 'none';
+                container.textContent = '图片加载失败';
+            };
+            container.appendChild(img);
+        }
+
+        updateSelectedThumb();
     }
 
     function nextImage() {
@@ -330,9 +351,20 @@
         thumbsIndexes.forEach((realIndex, pos) => {
             const img = document.createElement('img');
             img.className = 'thumb';
-            img.src = galleryImages[realIndex].startsWith('content/')
-                ? galleryImages[realIndex]
-                : `content/${folderName}/gallery/${galleryImages[realIndex]}`;
+
+            // 缩略图用图片，如果是视频，可以用视频文件名生成缩略图路径或者默认缩略图
+            const src = galleryImages[realIndex];
+            const ext = src.split('.').pop().toLowerCase();
+
+            // 简单用视频的缩略图路径：将.mp4替换为.jpg（可根据需求调整）
+            let thumbSrc = '';
+            if (['mp4', 'webm', 'mov', 'avi', 'mkv'].includes(ext)) {
+                thumbSrc = src.replace(/\.\w+$/, '.jpg');
+            } else {
+                thumbSrc = src;
+            }
+
+            img.src = thumbSrc.startsWith('content/') ? thumbSrc : `content/${folderName}/gallery/${thumbSrc}`;
             img.alt = `缩略图 ${realIndex + 1}`;
             img.dataset.realIndex = realIndex;
             img.dataset.pos = pos;
@@ -340,7 +372,6 @@
             img.onclick = () => {
                 if (isTransitioning) return;
                 galleryIndex = realIndex;
-                // 找当前缩略图中对应图片的pos，并移动
                 moveThumbToPos(pos);
                 showImage();
             };
@@ -348,14 +379,12 @@
             thumbsTrack.appendChild(img);
         });
 
-        // 初始化位置为中间组第galleryIndex个
         currentPos = galleryImages.length + galleryIndex;
         currentTranslate = -stepPx * (currentPos - Math.floor(THUMB_COUNT / 2));
         setTrackPosition(false);
         updateSelectedThumb();
     }
 
-    // 移动轨道指定步数（1或-1）
     function moveThumbByStep(step) {
         if (isTransitioning) return;
         isTransitioning = true;
@@ -367,7 +396,6 @@
         thumbsTrack.addEventListener('transitionend', onTransitionEnd);
     }
 
-    // 平滑移动轨道到指定pos（缩略图dom的位置）
     function moveThumbToPos(targetPos) {
         if (isTransitioning) return;
         isTransitioning = true;
@@ -379,7 +407,6 @@
         thumbsTrack.addEventListener('transitionend', onTransitionEnd);
     }
 
-    // 设置transform和动画
     function setTrackPosition(withTransition) {
         if (withTransition) {
             thumbsTrack.style.transition = 'transform 0.4s ease';
@@ -389,19 +416,15 @@
         thumbsTrack.style.transform = `translateX(${currentTranslate}px)`;
     }
 
-    // 动画结束后处理循环边界
     function onTransitionEnd() {
         thumbsTrack.removeEventListener('transitionend', onTransitionEnd);
         const total = galleryImages.length;
 
-        // 如果currentPos超出左边界，跳转到中间组对应位置
         if (currentPos < total) {
             currentPos += total;
             currentTranslate = -stepPx * (currentPos - Math.floor(THUMB_COUNT / 2));
             setTrackPosition(false);
-        }
-        // 超出右边界，跳转到中间组对应位置
-        else if (currentPos >= 2 * total) {
+        } else if (currentPos >= 2 * total) {
             currentPos -= total;
             currentTranslate = -stepPx * (currentPos - Math.floor(THUMB_COUNT / 2));
             setTrackPosition(false);
@@ -411,7 +434,6 @@
         updateSelectedThumb();
     }
 
-    // 修改后的更新缩略图高亮：只高亮当前位置currentPos对应缩略图
     function updateSelectedThumb() {
         const thumbs = thumbsTrack.children;
         for (let i = 0; i < thumbs.length; i++) {
