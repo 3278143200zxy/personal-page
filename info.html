@@ -63,7 +63,7 @@
   }
   .thumbs-track {
     display:flex;gap:8px;height:65px;will-change:transform;
-    /* 注意：去掉transition，白框动画独立处理 */
+    transition: transform 0.4s ease;
   }
   .thumb {
     position:relative;
@@ -98,7 +98,7 @@
     border: 2px solid white;
     border-radius: 4px;
     pointer-events: none;
-    transition: transform 0.4s ease;
+    transition: none; /* 白框切换不动画 */
     z-index: 40;
   }
 </style>
@@ -121,7 +121,6 @@
   <div class="thumbs-mask-left"></div>
   <div class="thumbs-mask-right"></div>
   <div class="thumbs-track" id="thumbs-track"></div>
-  <!-- 白框元素，独立管理位置 -->
   <div id="thumb-selected-box"></div>
 </div>
 
@@ -160,7 +159,7 @@ async function loadInfo(folder){
       selectedBox=document.getElementById('thumb-selected-box');
       setupThumbnails();
       showMedia();
-      updateSelectedBoxImmediate();
+      updateSelectedBoxImmediate(true);
     } else clearMedia();
   }catch(e){
     setError("加载失败",`无法加载作品信息：${e}`);
@@ -234,7 +233,7 @@ function setupThumbnails(){
       if(isTransitioning) return;
       galleryIndex=realIndex;
       currentPos=pos; // 重要：点击直接更新 currentPos
-      updateSelectedBoxImmediate();
+      updateSelectedBoxImmediate(true); // 白框切换无动画
       showMedia();
     };
     thumbsTrack.appendChild(thumb);
@@ -243,20 +242,18 @@ function setupThumbnails(){
   updateSelectedBoxImmediate(true);
 }
 
-function updateSelectedBoxImmediate(withoutTransition=false){
+function updateSelectedBoxImmediate(noAnim=false){
   if(!selectedBox) return;
-  // 计算当前缩略图 X 位置
+  // 计算容器滑动距离，使选中缩略图居中显示
   let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
-  // 限制最大最小，避免选框滑出可视区
   const maxOffset = (thumbsTrack.childElementCount - THUMB_COUNT) * STEP_PX;
   if(offset < 0) offset = 0;
   if(offset > maxOffset) offset = maxOffset;
-  // 设置滑动容器位置（无动画）
-  thumbsTrack.style.transition = 'none';
+  // 容器滑动有动画
+  thumbsTrack.style.transition = 'transform 0.4s ease';
   thumbsTrack.style.transform = `translateX(${-offset}px)`;
-  // 白框移动
-  selectedBox.style.transition = withoutTransition ? 'none' : 'transform 0.4s ease';
-  // 白框位置固定在中心的缩略图格子位置
+  // 白框无动画，位置固定中间
+  selectedBox.style.transition = noAnim ? 'none' : 'none'; // 永远无动画
   selectedBox.style.transform = `translateX(${Math.floor(THUMB_COUNT/2)*STEP_PX}px)`;
 }
 
@@ -267,10 +264,9 @@ function moveThumbByStep(step){
   const total=galleryImages.length;
   if(currentPos < total) currentPos += total;
   if(currentPos >= 2*total) currentPos -= total;
-  updateSelectedBoxImmediate();
+  updateSelectedBoxImmediate(true);
   galleryIndex = thumbsIndexes[currentPos];
   showMedia();
-  // 0.4秒后解除锁定
   setTimeout(()=>{isTransitioning=false;},400);
 }
 
