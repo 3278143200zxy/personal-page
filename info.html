@@ -232,26 +232,26 @@ function setupThumbnails(){
     thumb.onclick = () => {
       if(isTransitioning) return;
       galleryIndex=realIndex;
-      currentPos=pos; // 重要：点击直接更新 currentPos
+      currentPos=galleryImages.length + galleryIndex; // 初始化 currentPos 在中间套内
       updateSelectedBoxImmediate(true); // 白框切换无动画
       showMedia();
     };
     thumbsTrack.appendChild(thumb);
   });
-  currentPos=galleryImages.length+galleryIndex;
+  currentPos = galleryImages.length + galleryIndex;
   updateSelectedBoxImmediate(true);
 }
 
-// 关键修改，循环移动效果
+// 关键修改，循环移动效果，选中框位置固定
 function updateSelectedBoxImmediate(noAnim=false){
   if(!selectedBox) return;
   const total = galleryImages.length;
   const totalThumbs = thumbsTrack.childElementCount; // 3倍 total
   const oneSetLength = total * STEP_PX;
 
-  // 允许offset超出范围，实现无缝循环
   let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
 
+  // 允许offset超出范围，实现无缝循环
   if(offset < 0){
     offset += oneSetLength;
     currentPos += total;
@@ -263,7 +263,6 @@ function updateSelectedBoxImmediate(noAnim=false){
   thumbsTrack.style.transition = noAnim ? 'none' : 'transform 0.4s ease';
   thumbsTrack.style.transform = `translateX(${-offset}px)`;
 
-  // 白框固定在中间位置
   selectedBox.style.transition = 'none';
   selectedBox.style.transform = `translateX(${Math.floor(THUMB_COUNT/2)*STEP_PX}px)`;
 }
@@ -272,18 +271,34 @@ function moveThumbByStep(step){
   if(isTransitioning) return;
   isTransitioning = true;
   currentPos += step;
-  const total = galleryImages.length;
 
-  // 保证 currentPos 在 [total, 2*total) 区间，方便循环处理
-  if(currentPos < total) currentPos += total;
-  else if(currentPos >= 2*total) currentPos -= total;
+  const offset = (currentPos - Math.floor(THUMB_COUNT / 2)) * STEP_PX;
+  thumbsTrack.style.transition = 'transform 0.4s ease';
+  thumbsTrack.style.transform = `translateX(${-offset}px)`;
 
-  updateSelectedBoxImmediate(false);
   galleryIndex = thumbsIndexes[currentPos];
   showMedia();
-
-  setTimeout(() => { isTransitioning = false; }, 400);
 }
+
+// 添加 transitionend 事件，实现无缝跳转
+thumbsTrack.addEventListener('transitionend', () => {
+  const total = galleryImages.length;
+
+  if(currentPos < total){
+    currentPos += total;
+    const offset = (currentPos - Math.floor(THUMB_COUNT / 2)) * STEP_PX;
+    thumbsTrack.style.transition = 'none';
+    thumbsTrack.style.transform = `translateX(${-offset}px)`;
+  } else if(currentPos >= 2*total){
+    currentPos -= total;
+    const offset = (currentPos - Math.floor(THUMB_COUNT / 2)) * STEP_PX;
+    thumbsTrack.style.transition = 'none';
+    thumbsTrack.style.transform = `translateX(${-offset}px)`;
+  }
+
+  isTransitioning = false;
+  updateSelectedBoxImmediate(true);
+});
 
 function nextImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(1);}
 function prevImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(-1);}
@@ -312,4 +327,4 @@ window.onload=()=>loadInfo(getQueryParam('folder'));
 </script>
 
 </body>
-</html> 
+</html>
