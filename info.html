@@ -4,320 +4,410 @@
 <meta charset="utf-8" />
 <title>作品详情</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  .topbar {
-    position:fixed;top:0;left:0;right:0;height:60px;
-    background:#000;display:flex;align-items:center;padding-left:25px;
-    font-weight:600;border-bottom:1px solid #111;z-index:9999;
-  }
-  .topbar a img {
-    height:48px;width:auto;cursor:pointer;
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
   }
   body {
+    background: #222;
+    color: #eee;
     font-family: Arial, sans-serif;
-    background:#222;color:#eee;
-    padding-top:60px;
-    max-width:700px;margin:0 auto;
-    padding-left:15px;padding-right:15px;
+    max-width: 700px;
+    margin: 60px auto 30px;
+    padding: 0 15px;
   }
   h1 {
-    font-size:3em;margin:15px 0 10px;text-align:left;text-transform:none;
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-align: left;
   }
   .gallery-container {
-    width:100%;height:420px;background:#000;
-    margin:15px auto;position:relative;overflow:hidden;
-  }
-  .gallery-image,.gallery-video {
-    width:100%;height:100%;object-fit:contain;
-    background:#000;display:block;user-select:none;
+    position: relative;
+    width: 100%;
+    height: 420px;
+    background: black;
+    overflow: hidden;
+    margin-bottom: 15px;
   }
   #loading-overlay {
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    color:#fff;font-size:1.5em;font-weight:700;user-select:none;
-    pointer-events:none;display:none;z-index:25;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 1.5em;
+    display: none;
+    pointer-events: none;
+    z-index: 30;
+  }
+  img.gallery-image, video.gallery-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: none;
+    user-select: none;
+    background: black;
   }
   .arrow {
-    position:absolute;top:50%;transform:translateY(-50%);
-    font-size:40px;color:#fff;cursor:pointer;padding:10px;
-    user-select:none;z-index:20;background:rgba(0,0,0,0.3);
-    border-radius:50%;transition:background-color .3s;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 50%;
+    user-select: none;
+    z-index: 40;
+    transition: background-color 0.3s;
   }
   .arrow:hover {
-    background:rgba(255,255,255,0.3);color:#ccc;
+    background: rgba(255,255,255,0.3);
+    color: #ccc;
   }
-  .left-arrow { left:10px; }
-  .right-arrow { right:10px; }
+  .left-arrow { left: 10px; }
+  .right-arrow { right: 10px; }
+
+  /* 缩略图容器和滑动条 */
   .thumbs-wrapper {
-    position:relative;margin:12px auto 0;
-    width:600px;height:65px;user-select:none;overflow:hidden;
-  }
-  .thumbs-mask-left, .thumbs-mask-right {
-    position:absolute;top:0;width:50px;height:65px;
-    pointer-events:none;z-index:30;
-  }
-  .thumbs-mask-left {
-    left:0;background:linear-gradient(to right,#222 0%,transparent 100%);
-  }
-  .thumbs-mask-right {
-    right:0;background:linear-gradient(to left,#222 0%,transparent 100%);
+    position: relative;
+    width: 600px;
+    height: 65px;
+    margin: 0 auto;
+    overflow: hidden;
+    user-select: none;
   }
   .thumbs-track {
-    display:flex;gap:8px;height:65px;will-change:transform;
+    display: flex;
+    gap: 8px;
+    height: 65px;
+    will-change: transform;
     transition: transform 0.4s ease;
+    position: relative;
   }
   .thumb {
-    position:relative;
-    width:80px;height:45px;
-    background:#000 no-repeat center/cover;
-    border:2px solid transparent;border-radius:4px;
-    cursor:pointer;flex-shrink:0;transition:none;
-  }
-  .thumb.video-thumb::after {
-    content:"▶";
-    position:absolute;top:50%;left:50%;
-    transform:translate(-50%,-50%);
-    font-size:24px;color:rgba(255,255,255,0.8);
-    pointer-events:none;
-  }
-  .thumb.selected {
-    border-color:#fff;
-  }
-  p.description {
-    font-size:1.1em;line-height:1.5;white-space:pre-wrap;margin-top:15px;
-  }
-  .back-link {
-    margin-top:30px;display:inline-block;color:#aaf;
-    text-decoration:underline;cursor:pointer;
+    position: relative;
+    flex-shrink: 0;
+    width: 80px;
+    height: 45px;
+    border-radius: 4px;
+    background: black;
+    cursor: pointer;
+    object-fit: cover;
   }
 
-  /* 白框 - 选中边框 */
-  #thumb-selected-box {
+  /* 播放按钮SVG容器 */
+  .thumb.video-thumb {
+    position: relative;
+  }
+  .thumb.video-thumb svg.play-icon {
     position: absolute;
-    top: 0; left: 0;
-    width: 80px; height: 45px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    fill: white;
+    filter: drop-shadow(0 0 2px black);
+    pointer-events: none;
+  }
+
+  /* 白框随缩略图一起移动 */
+  .selection-box {
+    pointer-events: none;
+    position: absolute;
+    top: 10px;
+    width: 80px;
+    height: 45px;
     border: 2px solid white;
     border-radius: 4px;
-    pointer-events: none;
-    transition: none; /* 白框切换不动画 */
-    z-index: 40;
+    box-sizing: border-box;
+    z-index: 50;
+    transition: left 0.4s ease;
+    left: 0;
+  }
+
+  p.description {
+    white-space: pre-wrap;
+    font-size: 1.1em;
+    line-height: 1.5;
+    margin-top: 15px;
+  }
+  .back-link {
+    margin-top: 30px;
+    display: inline-block;
+    color: #aaf;
+    text-decoration: underline;
+    cursor: pointer;
   }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <a href="index.html"><img src="logo.png" alt="logo" /></a>
-</div>
+<h1 id="title">加载中...</h1>
 
 <div class="gallery-container">
   <div id="loading-overlay">Loading...</div>
   <div class="arrow left-arrow" onclick="prevImage()">❮</div>
-  <img id="gallery-img" class="gallery-image" src="" alt="作品图片" draggable="false" style="display:none;" />
-  <video id="gallery-video" class="gallery-video" controls style="display:none;"></video>
+  <img id="gallery-img" class="gallery-image" draggable="false" alt="作品图片" />
+  <video id="gallery-video" class="gallery-video" controls></video>
   <div class="arrow right-arrow" onclick="nextImage()">❯</div>
 </div>
 
-<div class="thumbs-wrapper" id="thumbs-wrapper">
-  <div class="thumbs-mask-left"></div>
-  <div class="thumbs-mask-right"></div>
-  <div class="thumbs-track" id="thumbs-track"></div>
-  <div id="thumb-selected-box"></div>
+<div class="thumbs-wrapper">
+  <div class="thumbs-track" id="thumbs-track">
+    <div class="selection-box"></div>
+  </div>
 </div>
 
-<h1 id="title">加载中...</h1>
 <p class="description" id="description"></p>
+
 <a href="index.html" class="back-link">← 返回作品集</a>
 
 <script>
-const THUMB_COUNT = 6, THUMB_W = 80, THUMB_GAP = 8, STEP_PX = THUMB_W + THUMB_GAP;
-let folderName = "", galleryImages = [], galleryIndex = 0;
-let thumbsTrack, thumbsWrapper, selectedBox;
-let thumbsIndexes = [], currentPos = 0;
-let baseOffset = 0; // 基础偏移量，控制无缝跳转
-let isTransitioning = false;
+  const titleEl = document.getElementById('title');
+  const descEl = document.getElementById('description');
+  const galleryImg = document.getElementById('gallery-img');
+  const galleryVideo = document.getElementById('gallery-video');
+  const loadingOverlay = document.getElementById('loading-overlay');
+  const thumbsTrack = document.getElementById('thumbs-track');
+  const selectionBox = document.querySelector('.selection-box');
 
-function getQueryParam(p){return new URLSearchParams(location.search).get(p);}
+  const THUMB_WIDTH = 80;
+  const THUMB_GAP = 8;
+  const STEP = THUMB_WIDTH + THUMB_GAP;
+  const VISIBLE_COUNT = 6;
 
-async function loadInfo(folder){
-  folderName = folder || "";
-  if(!folder){
-    setError("未指定作品文件夹", "请从主页点击作品进入详情页面。");
-    return;
+  let folder = getQueryParam('folder');
+  let gallery = [];
+  let currentPos = 0;  // 在3倍复制缩略图轨道上的索引
+
+  // 视频缩略图缓存
+  const videoThumbCache = {};
+
+  function getQueryParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
   }
-  try {
-    let res=await fetch(`content/${folder}/info.json`);
-    if(!res.ok)throw"未找到 info.json";
-    let info=await res.json();
-    document.getElementById('title').textContent = info.title||folder;
-    let d=info.description||"无描述内容";
-    d=d.split("\n").slice(1).join("\n");
-    document.getElementById('description').textContent=d;
-    galleryImages=info.gallery||[];
-    if(galleryImages.length>0){
-      galleryIndex=0;
-      thumbsTrack=document.getElementById('thumbs-track');
-      thumbsWrapper=document.getElementById('thumbs-wrapper');
-      selectedBox=document.getElementById('thumb-selected-box');
-      setupThumbnails();
-      showMedia();
-      updateSelectedBoxImmediate(true);
-    } else clearMedia();
-  }catch(e){
-    setError("加载失败",`无法加载作品信息：${e}`);
-  }
-}
 
-function setError(title,text){
-  document.getElementById('title').textContent=title;
-  document.getElementById('description').textContent=text;
-  clearMedia();
-}
-
-function clearMedia(){
-  document.getElementById('gallery-img').style.display='none';
-  document.getElementById('gallery-video').style.display='none';
-  document.getElementById('loading-overlay').style.display='none';
-  if(thumbsTrack) thumbsTrack.innerHTML='';
-  if(selectedBox) selectedBox.style.transform='translateX(-9999px)';
-}
-
-function showLoading(){
-  document.getElementById('loading-overlay').style.display='block';
-  document.getElementById('gallery-img').style.display='none';
-  document.getElementById('gallery-video').style.display='none';
-}
-function hideLoading(){document.getElementById('loading-overlay').style.display='none';}
-
-function showMedia(){
-  if(!galleryImages.length)return;
-  const img=document.getElementById('gallery-img');
-  const video=document.getElementById('gallery-video');
-  const src=galleryImages[galleryIndex].startsWith('content/')?galleryImages[galleryIndex]:`content/${folderName}/gallery/${galleryImages[galleryIndex]}`;
-  showLoading();
-  if(src.toLowerCase().endsWith('.mp4')){
-    img.style.display='none';
-    video.style.display='block';
-    video.src=src;
-    video.load();
-    video.play().catch(()=>{});
-    video.oncanplay=video.onerror=()=>hideLoading();
-  } else {
-    video.pause();
-    video.style.display='none';
-    img.style.display='block';
-    img.onload=()=>hideLoading();
-    img.onerror=()=>hideLoading();
-    img.src=src;
-    img.alt=`作品图片 ${galleryIndex+1} / ${galleryImages.length}`;
-  }
-}
-
-// 只初始化一次缩略图
-function setupThumbnails(){
-  thumbsTrack.innerHTML=''; thumbsIndexes=[];
-  if(!galleryImages.length) return;
-  for(let i=0;i<3;i++) for(let j=0;j<galleryImages.length;j++) thumbsIndexes.push(j);
-  thumbsIndexes.forEach((realIndex,pos)=>{
-    const thumb=document.createElement('div');
-    thumb.className='thumb';
-    const path=galleryImages[realIndex];
-    thumb.dataset.realIndex=realIndex; thumb.dataset.pos=pos;
-    if(path.toLowerCase().endsWith('.mp4')){
-      thumb.classList.add('video-thumb');
-      thumb.style.backgroundColor='#000';
-      generateVideoThumbnail(path.startsWith('content/')?path:`content/${folderName}/gallery/${path}`)
-        .then(url=>{if(url)thumb.style.backgroundImage=`url(${url})`});
-    } else {
-      thumb.style.backgroundImage = `url(${path.startsWith('content/')?path:`content/${folderName}/gallery/${path}`})`;
+  async function fetchInfo() {
+    if (!folder) {
+      showError("未指定作品文件夹", "请从主页点击作品进入详情页面。");
+      return;
     }
-    thumb.onclick = () => {
-      if(isTransitioning) return;
-      galleryIndex=realIndex;
-      currentPos=galleryImages.length + pos % galleryImages.length; // 重新定位currentPos到中间组对应位置
-      baseOffset = 0; // 重置基础偏移，防止跳转残留
-      updateSelectedBoxImmediate(true);
-      showMedia();
-    };
-    thumbsTrack.appendChild(thumb);
-  });
-  // 初始 currentPos 设为中间复制组的 galleryIndex 对应位置
-  currentPos = galleryImages.length + galleryIndex;
-  baseOffset = 0;
-  updateSelectedBoxImmediate(true);
-}
-
-// 核心无缝滚动+跳转函数
-function updateSelectedBoxImmediate(noAnim = false) {
-  if (!selectedBox) return;
-  const total = galleryImages.length;
-  const oneSetLength = total * STEP_PX;
-  const centerIndex = Math.floor(THUMB_COUNT / 2);
-
-  // 计算相对偏移（不含baseOffset）
-  let relativeOffset = (currentPos - centerIndex) * STEP_PX;
-
-  // 判断是否需要无动画跳转调整baseOffset，实现视觉无缝循环
-  if (relativeOffset + baseOffset < 0) {
-    baseOffset += oneSetLength;
-    currentPos += total;
-  } else if (relativeOffset + baseOffset >= oneSetLength) {
-    baseOffset -= oneSetLength;
-    currentPos -= total;
+    try {
+      const res = await fetch(`content/${folder}/info.json`);
+      if (!res.ok) throw new Error("找不到 info.json");
+      const info = await res.json();
+      titleEl.textContent = info.title || folder;
+      descEl.textContent = info.description || "";
+      gallery = info.gallery || [];
+      if (!gallery.length) {
+        showError("无画廊内容", "");
+        return;
+      }
+      initPosition();
+      await renderThumbnails();
+      showCurrentMedia();
+    } catch (e) {
+      showError("加载失败", `无法加载作品信息：${e.message}`);
+    }
   }
 
-  let offset = baseOffset + relativeOffset;
+  function showError(title, desc) {
+    titleEl.textContent = title;
+    descEl.textContent = desc;
+    galleryImg.style.display = 'none';
+    galleryVideo.style.display = 'none';
+    loadingOverlay.style.display = 'none';
+    thumbsTrack.innerHTML = '';
+  }
 
-  thumbsTrack.style.transition = noAnim ? 'none' : 'transform 0.4s ease';
-  thumbsTrack.style.transform = `translateX(${-offset}px)`;
+  function showLoading() {
+    loadingOverlay.style.display = 'block';
+    galleryImg.style.display = 'none';
+    galleryVideo.style.display = 'none';
+  }
 
-  // 白框固定在中间
-  selectedBox.style.transition = 'none';
-  selectedBox.style.transform = `translateX(${centerIndex * STEP_PX}px)`;
-}
+  function hideLoading() {
+    loadingOverlay.style.display = 'none';
+  }
 
-function moveThumbByStep(step) {
-  if (isTransitioning) return;
-  isTransitioning = true;
+  async function renderThumbnails() {
+    thumbsTrack.innerHTML = '';
+    thumbsTrack.appendChild(selectionBox); // 保证白框在最前面
 
-  currentPos += step;
+    const len = gallery.length;
+    const totalThumbs = len * 3; // 三倍复制组
 
-  updateSelectedBoxImmediate(false);
+    for (let i = 0; i < totalThumbs; i++) {
+      const realIndex = i % len;
+      const src = gallery[realIndex];
+      const thumb = document.createElement('img');
+      thumb.classList.add('thumb');
+      thumb.dataset.realIndex = realIndex;
 
-  // galleryIndex 始终映射到真实的galleryImages索引（0~total-1）
-  const total = galleryImages.length;
-  let modIndex = ((currentPos % total) + total) % total;
-  galleryIndex = modIndex;
+      if (src.toLowerCase().endsWith('.mp4')) {
+        thumb.classList.add('video-thumb');
+        thumb.src = await getVideoThumbnail(`content/${folder}/gallery/${src}`);
+        // 添加播放按钮SVG
+        const svgNS = "http://www.w3.org/2000/svg";
+        const playIcon = document.createElementNS(svgNS, "svg");
+        playIcon.setAttribute("viewBox", "0 0 24 24");
+        playIcon.classList.add('play-icon');
+        const polygon = document.createElementNS(svgNS, "polygon");
+        polygon.setAttribute("points", "8,5 19,12 8,19");
+        playIcon.appendChild(polygon);
+        thumb.appendChild(playIcon);
+      } else {
+        thumb.src = src.startsWith('content/') ? src : `content/${folder}/gallery/${src}`;
+      }
 
-  showMedia();
+      thumb.alt = `缩略图 ${realIndex + 1}`;
+      thumb.onclick = () => {
+        currentPos = gallery.length + realIndex; // 点击跳转到中间组对应位置
+        updateThumbsPosition(true);
+        showCurrentMedia();
+      };
 
-  setTimeout(() => { isTransitioning = false; }, 400);
-}
+      thumbsTrack.appendChild(thumb);
+    }
 
-function nextImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(1);}
-function prevImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(-1);}
+    updateThumbsPosition(false);
+  }
 
-function generateVideoThumbnail(videoUrl){
-  return new Promise(resolve=>{
-    const video=document.createElement('video');
-    video.src=videoUrl;
-    video.crossOrigin="anonymous";
-    video.muted=true;
-    video.playsInline=true;
-    video.currentTime=0.1;
-    video.addEventListener('loadeddata',()=>{
-      const canvas=document.createElement('canvas');
-      canvas.width=video.videoWidth;
-      canvas.height=video.videoHeight;
-      const ctx=canvas.getContext('2d');
-      ctx.drawImage(video,0,0,canvas.width,canvas.height);
-      resolve(canvas.toDataURL('image/png'));
-    },{once:true});
-    video.onerror=()=>resolve(null);
-  });
-}
+  function updateThumbsPosition(withTransition = true) {
+    const len = gallery.length;
+    const centerIndex = Math.floor(len / 2);
+    let translateX = -STEP * (currentPos - centerIndex);
 
-window.onload = () => loadInfo(getQueryParam('folder'));
+    if (withTransition) {
+      thumbsTrack.style.transition = 'transform 0.4s ease';
+      selectionBox.style.transition = 'left 0.4s ease';
+    } else {
+      thumbsTrack.style.transition = 'none';
+      selectionBox.style.transition = 'none';
+    }
+
+    thumbsTrack.style.transform = `translateX(${translateX}px)`;
+    selectionBox.style.left = `${centerIndex * STEP}px`;
+  }
+
+  function showCurrentMedia() {
+    if (!gallery.length) return;
+    showLoading();
+
+    let realIndex = ((currentPos % gallery.length) + gallery.length) % gallery.length;
+    const path = gallery[realIndex];
+    const src = path.startsWith('content/') ? path : `content/${folder}/gallery/${path}`;
+
+    if (src.toLowerCase().endsWith('.mp4')) {
+      galleryImg.style.display = 'none';
+      galleryVideo.style.display = 'block';
+      galleryVideo.src = src;
+      galleryVideo.load();
+      galleryVideo.play().catch(() => {});
+      galleryVideo.oncanplay = () => hideLoading();
+      galleryVideo.onerror = () => hideLoading();
+    } else {
+      galleryVideo.pause();
+      galleryVideo.style.display = 'none';
+      galleryImg.style.display = 'block';
+      galleryImg.src = src;
+      galleryImg.alt = `作品图片 ${realIndex + 1}`;
+      galleryImg.onload = () => hideLoading();
+      galleryImg.onerror = () => hideLoading();
+    }
+  }
+
+  function nextImage() {
+    if (!gallery.length) return;
+    currentPos++;
+    updateThumbsPosition(true);
+    setTimeout(() => {
+      const len = gallery.length;
+      if (currentPos >= 2 * len) {
+        currentPos -= len; // 跳回中间组
+        updateThumbsPosition(false);
+      }
+      showCurrentMedia();
+    }, 400);
+  }
+
+  function prevImage() {
+    if (!gallery.length) return;
+    currentPos--;
+    updateThumbsPosition(true);
+    setTimeout(() => {
+      const len = gallery.length;
+      if (currentPos < len) {
+        currentPos += len; // 跳回中间组
+        updateThumbsPosition(false);
+      }
+      showCurrentMedia();
+    }, 400);
+  }
+
+  function initPosition() {
+    if (!gallery.length) return;
+    currentPos = gallery.length; // 从中间复制组起点开始
+    updateThumbsPosition(false);
+  }
+
+  // 生成视频缩略图
+  function getVideoThumbnail(videoUrl) {
+    return new Promise((resolve) => {
+      if (videoThumbCache[videoUrl]) {
+        resolve(videoThumbCache[videoUrl]);
+        return;
+      }
+      const video = document.createElement('video');
+      video.src = videoUrl;
+      video.crossOrigin = "anonymous";
+      video.muted = true;
+      video.playsInline = true;
+      video.preload = "auto";
+      video.currentTime = 0.1;
+
+      video.addEventListener('loadeddata', () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = THUMB_WIDTH;
+        canvas.height = 45;
+
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+        const aspectVideo = vw / vh;
+        const aspectCanvas = canvas.width / canvas.height;
+
+        let sx = 0, sy = 0, sWidth = vw, sHeight = vh;
+
+        if (aspectVideo > aspectCanvas) {
+          sWidth = vh * aspectCanvas;
+          sx = (vw - sWidth) / 2;
+        } else {
+          sHeight = vw / aspectCanvas;
+          sy = (vh - sHeight) / 2;
+        }
+
+        ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+
+        const dataUrl = canvas.toDataURL('image/png');
+        videoThumbCache[videoUrl] = dataUrl;
+        resolve(dataUrl);
+      });
+
+      video.addEventListener('error', () => {
+        // 失败时返回透明或占位图
+        resolve('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAAAyCAIAAAAsyk63AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAM1JREFUeNrs0jEOgCAMBNCf//7XUE0nkPWHl6M7ZgK0xDrFy1QI7Pzso0QCd3+1CMABq2s3jCOBTL1Fo6Xk1yYyoMaLtrFkCWxmVDQhPMNY4DzOfzMYiDQGRl6TiCHTDIPFo4QqlhP2QxIAXAaUMVb8nJtwZwd1jo6U4J6AQ14KN7BqPLKoUifTiRE5YxNoI0EHi0gAKAD7xGr9U9MrHsAAAAASUVORK5CYII=');
+      });
+
+      // 触发加载
+      video.play().then(() => video.pause()).catch(() => {});
+    });
+  }
+
+  fetchInfo();
 </script>
-
 </body>
 </html>
