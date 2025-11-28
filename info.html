@@ -83,6 +83,7 @@
     height: 65px;
     will-change: transform;
     transition: transform 0.4s ease;
+    position: relative;
   }
   .thumb {
     position: relative;
@@ -111,19 +112,18 @@
     pointer-events: none;
   }
 
-  /* 固定白框，永远居中 */
+  /* 白框随缩略图一起移动 */
   .selection-box {
     pointer-events: none;
     position: absolute;
-    top: 10px; /* (65 - 45)/2 */
-    left: 50%;
+    top: 10px;
     width: 80px;
     height: 45px;
     border: 2px solid white;
     border-radius: 4px;
     box-sizing: border-box;
-    transform: translateX(-50%);
     z-index: 50;
+    transition: left 0.4s ease;
   }
 
   p.description {
@@ -154,8 +154,9 @@
 </div>
 
 <div class="thumbs-wrapper">
-  <div class="thumbs-track" id="thumbs-track"></div>
-  <div class="selection-box"></div>
+  <div class="thumbs-track" id="thumbs-track">
+    <div class="selection-box"></div>
+  </div>
 </div>
 
 <p class="description" id="description"></p>
@@ -197,7 +198,7 @@
       if (!res.ok) throw new Error("找不到 info.json");
       const info = await res.json();
       titleEl.textContent = info.title || folder;
-      descEl.textContent = (info.description || "").split('\n').slice(1).join('\n');
+      descEl.textContent = info.description || "";
       gallery = info.gallery || [];
       if (!gallery.length) {
         showError("无画廊内容", "");
@@ -232,8 +233,8 @@
 
   async function renderThumbnails() {
     thumbsTrack.innerHTML = '';
+    thumbsTrack.appendChild(selectionBox); // 重新插入白框，防止丢失
 
-    // 制造三倍循环序列方便无限滚动
     const len = gallery.length;
     const totalThumbs = len * 3;
 
@@ -244,18 +245,15 @@
       thumb.classList.add('thumb');
       thumb.dataset.index = realIndex;
 
-      // 视频缩略图处理
       if (src.toLowerCase().endsWith('.mp4')) {
         thumb.classList.add('video-thumb');
         thumb.src = await getVideoThumbnail(`content/${folder}/gallery/${src}`);
-        // 添加播放三角SVG
         const svgNS = "http://www.w3.org/2000/svg";
         const playIcon = document.createElementNS(svgNS, "svg");
         playIcon.setAttribute("viewBox", "0 0 24 24");
         playIcon.classList.add('play-icon');
         const polygon = document.createElementNS(svgNS, "polygon");
         polygon.setAttribute("points", "8,5 19,12 8,19");
-        polygon.setAttribute("fill", "white");
         playIcon.appendChild(polygon);
         thumb.appendChild(playIcon);
       } else {
@@ -271,28 +269,21 @@
 
       thumbsTrack.appendChild(thumb);
     }
-
     updateThumbsPosition(false);
   }
 
-  // 计算和设置缩略图轨道transform，实现循环滚动
   function updateThumbsPosition(withTransition = true) {
     const len = gallery.length;
-    // 为了白框永远居中，currentPos = len + currentIndex
-    // 让选中项居中（第THUMBS_VISIBLE_COUNT/2个）
     let currentPos = len + currentIndex;
-
-    // 计算translateX，负值往左移
     const translateX = -STEP * (currentPos - Math.floor(THUMBS_VISIBLE_COUNT / 2));
-    if (withTransition) {
-      thumbsTrack.style.transition = 'transform 0.4s ease';
-    } else {
-      thumbsTrack.style.transition = 'none';
-    }
+
+    thumbsTrack.style.transition = withTransition ? 'transform 0.4s ease' : 'none';
     thumbsTrack.style.transform = `translateX(${translateX}px)`;
 
-    // 白框固定在中间，不动
-    // 这里不需要操作白框left，CSS已固定left 50%
+    // 白框随thumbs-track移动，left设为当前缩略图相对thumbs-track的位置
+    const leftPos = currentPos * STEP;
+    selectionBox.style.transition = withTransition ? 'left 0.4s ease' : 'none';
+    selectionBox.style.left = `${leftPos}px`;
   }
 
   async function showCurrentMedia() {
@@ -337,7 +328,6 @@
     showCurrentMedia();
   }
 
-  // 视频第一帧截取生成缩略图，缓存避免重复
   function getVideoThumbnail(videoUrl) {
     return new Promise((resolve) => {
       if (videoThumbCache[videoUrl]) {
@@ -357,9 +347,8 @@
         const ctx = canvas.getContext('2d');
 
         canvas.width = THUMB_WIDTH;
-        canvas.height = 45; // 缩略图高度
+        canvas.height = 45;
 
-        // 画第一帧，保持比例居中裁剪
         const vw = video.videoWidth;
         const vh = video.videoHeight;
         const aspectVideo = vw / vh;
@@ -383,11 +372,9 @@
       });
 
       video.addEventListener('error', () => {
-        // 失败返回黑图占位
         resolve('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAAAyCAIAAAAsyk63AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAM1JREFUeNrs0jEOgCAMBNCf//7XUE0nkPWHl6M7ZgK0xDrFy1QI7Pzso0QCd3+1CMABq2s3jCOBTL1Fo6Xk1yYyoMaLtrFkCWxmVDQhPMNY4DzOfzMYiDQGRl6TiCHTDIPFo4QqlhP2QxIAXAaUMVb8nJtwZwd1jo6U4J6AQ14KN7BqPLKoUifTiRE5YxNoI0EHi0gAKAD7xGr9U9MrHsAAAAASUVORK5CYII=');
       });
 
-      // 为确保触发loadeddata事件，尝试播放再暂停
       video.play().then(() => video.pause()).catch(() => {});
     });
   }
