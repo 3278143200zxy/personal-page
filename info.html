@@ -62,17 +62,15 @@
     right:0;background:linear-gradient(to left,#222 0%,transparent 100%);
   }
   .thumbs-track {
-    display:flex;gap:8px;transition:transform 0.4s ease;height:65px;will-change:transform;
+    display:flex;gap:8px;height:65px;will-change:transform;
+    /* 注意：去掉transition，白框动画独立处理 */
   }
   .thumb {
     position:relative;
     width:80px;height:45px;
     background:#000 no-repeat center/cover;
     border:2px solid transparent;border-radius:4px;
-    cursor:pointer;flex-shrink:0;transition:border-color .3s;
-  }
-  .thumb.selected {
-    border-color:#fff;box-shadow:none;
+    cursor:pointer;flex-shrink:0;transition:none;
   }
   .thumb.video-thumb::after {
     content:"▶";
@@ -81,12 +79,27 @@
     font-size:24px;color:rgba(255,255,255,0.8);
     pointer-events:none;
   }
+  .thumb.selected {
+    border-color:#fff;
+  }
   p.description {
     font-size:1.1em;line-height:1.5;white-space:pre-wrap;margin-top:15px;
   }
   .back-link {
     margin-top:30px;display:inline-block;color:#aaf;
     text-decoration:underline;cursor:pointer;
+  }
+
+  /* 白框 - 选中边框 */
+  #thumb-selected-box {
+    position: absolute;
+    top: 0; left: 0;
+    width: 80px; height: 45px;
+    border: 2px solid white;
+    border-radius: 4px;
+    pointer-events: none;
+    transition: transform 0.4s ease;
+    z-index: 40;
   }
 </style>
 </head>
@@ -104,10 +117,12 @@
   <div class="arrow right-arrow" onclick="nextImage()">❯</div>
 </div>
 
-<div class="thumbs-wrapper">
+<div class="thumbs-wrapper" id="thumbs-wrapper">
   <div class="thumbs-mask-left"></div>
   <div class="thumbs-mask-right"></div>
   <div class="thumbs-track" id="thumbs-track"></div>
+  <!-- 白框元素，独立管理位置 -->
+  <div id="thumb-selected-box"></div>
 </div>
 
 <h1 id="title">加载中...</h1>
@@ -117,7 +132,9 @@
 <script>
 const THUMB_COUNT = 6, THUMB_W = 80, THUMB_GAP = 8, STEP_PX = THUMB_W + THUMB_GAP;
 let folderName = "", galleryImages = [], galleryIndex = 0;
-let thumbsTrack, thumbsIndexes = [], currentPos = 0, currentTranslate = 0, isTransitioning = false;
+let thumbsTrack, thumbsWrapper, selectedBox;
+let thumbsIndexes = [], currentPos = 0;
+let isTransitioning = false;
 
 function getQueryParam(p){return new URLSearchParams(location.search).get(p);}
 
@@ -139,24 +156,31 @@ async function loadInfo(folder){
     if(galleryImages.length>0){
       galleryIndex=0;
       thumbsTrack=document.getElementById('thumbs-track');
+      thumbsWrapper=document.getElementById('thumbs-wrapper');
+      selectedBox=document.getElementById('thumb-selected-box');
       setupThumbnails();
       showMedia();
+      updateSelectedBoxImmediate();
     } else clearMedia();
   }catch(e){
     setError("加载失败",`无法加载作品信息：${e}`);
   }
 }
+
 function setError(title,text){
   document.getElementById('title').textContent=title;
   document.getElementById('description').textContent=text;
   clearMedia();
 }
+
 function clearMedia(){
   document.getElementById('gallery-img').style.display='none';
   document.getElementById('gallery-video').style.display='none';
   document.getElementById('loading-overlay').style.display='none';
   if(thumbsTrack) thumbsTrack.innerHTML='';
+  if(selectedBox) selectedBox.style.transform='translateX(-9999px)';
 }
+
 function showLoading(){
   document.getElementById('loading-overlay').style.display='block';
   document.getElementById('gallery-img').style.display='none';
@@ -181,13 +205,14 @@ function showMedia(){
     video.pause();
     video.style.display='none';
     img.style.display='block';
-    img.onload=()=>{hideLoading();updateSelectedThumb();}
+    img.onload=()=>hideLoading();
     img.onerror=()=>hideLoading();
     img.src=src;
     img.alt=`作品图片 ${galleryIndex+1} / ${galleryImages.length}`;
   }
 }
 
+// 只初始化一次缩略图
 function setupThumbnails(){
   thumbsTrack.innerHTML=''; thumbsIndexes=[];
   if(!galleryImages.length) return;
@@ -208,58 +233,49 @@ function setupThumbnails(){
     thumb.onclick = () => {
       if(isTransitioning) return;
       galleryIndex=realIndex;
-      moveThumbToPos(pos);
+      currentPos=pos; // 重要：点击直接更新 currentPos
+      updateSelectedBoxImmediate();
       showMedia();
     };
     thumbsTrack.appendChild(thumb);
   });
   currentPos=galleryImages.length+galleryIndex;
-  currentTranslate = -STEP_PX * (currentPos - Math.floor(THUMB_COUNT/2));
-  setTrackPos(false);
-  updateSelectedThumb();
+  updateSelectedBoxImmediate(true);
+}
+
+function updateSelectedBoxImmediate(withoutTransition=false){
+  if(!selectedBox) return;
+  // 计算当前缩略图 X 位置
+  let offset = (currentPos - Math.floor(THUMB_COUNT/2)) * STEP_PX;
+  // 限制最大最小，避免选框滑出可视区
+  const maxOffset = (thumbsTrack.childElementCount - THUMB_COUNT) * STEP_PX;
+  if(offset < 0) offset = 0;
+  if(offset > maxOffset) offset = maxOffset;
+  // 设置滑动容器位置（无动画）
+  thumbsTrack.style.transition = 'none';
+  thumbsTrack.style.transform = `translateX(${-offset}px)`;
+  // 白框移动
+  selectedBox.style.transition = withoutTransition ? 'none' : 'transform 0.4s ease';
+  // 白框位置固定在中心的缩略图格子位置
+  selectedBox.style.transform = `translateX(${Math.floor(THUMB_COUNT/2)*STEP_PX}px)`;
 }
 
 function moveThumbByStep(step){
   if(isTransitioning) return;
   isTransitioning=true;
   currentPos+=step;
-  currentTranslate=-STEP_PX*(currentPos-Math.floor(THUMB_COUNT/2));
-  setTrackPos(true);
-  thumbsTrack.addEventListener('transitionend',onTransitionEnd);
-}
-function moveThumbToPos(pos){
-  if(isTransitioning) return;
-  isTransitioning=true;
-  currentPos=pos;
-  currentTranslate=-STEP_PX*(currentPos-Math.floor(THUMB_COUNT/2));
-  setTrackPos(true);
-  thumbsTrack.addEventListener('transitionend',onTransitionEnd);
-}
-function setTrackPos(withTrans){
-  thumbsTrack.style.transition=withTrans?'transform 0.4s ease':'none';
-  thumbsTrack.style.transform=`translateX(${currentTranslate}px)`;
-}
-function onTransitionEnd(){
-  thumbsTrack.removeEventListener('transitionend',onTransitionEnd);
   const total=galleryImages.length;
-  if(currentPos<total){
-    currentPos+=total;
-    currentTranslate=-STEP_PX*(currentPos-Math.floor(THUMB_COUNT/2));
-    setTrackPos(false);
-  } else if(currentPos>=2*total){
-    currentPos-=total;
-    currentTranslate=-STEP_PX*(currentPos-Math.floor(THUMB_COUNT/2));
-    setTrackPos(false);
-  }
-  isTransitioning=false;
-  updateSelectedThumb();
+  if(currentPos < total) currentPos += total;
+  if(currentPos >= 2*total) currentPos -= total;
+  updateSelectedBoxImmediate();
+  galleryIndex = thumbsIndexes[currentPos];
+  showMedia();
+  // 0.4秒后解除锁定
+  setTimeout(()=>{isTransitioning=false;},400);
 }
-function updateSelectedThumb(){
-  const thumbs=thumbsTrack.children;
-  for(let i=0;i<thumbs.length;i++){
-    thumbs[i].classList.toggle('selected',i===currentPos);
-  }
-}
+
+function nextImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(1);}
+function prevImage(){if(!galleryImages.length || isTransitioning) return; moveThumbByStep(-1);}
 
 function generateVideoThumbnail(videoUrl){
   return new Promise(resolve=>{
@@ -280,9 +296,6 @@ function generateVideoThumbnail(videoUrl){
     video.onerror=()=>resolve(null);
   });
 }
-
-function nextImage(){if(!galleryImages.length||isTransitioning)return;galleryIndex=(galleryIndex+1)%galleryImages.length;moveThumbByStep(1);showMedia();}
-function prevImage(){if(!galleryImages.length||isTransitioning)return;galleryIndex=(galleryIndex-1+galleryImages.length)%galleryImages.length;moveThumbByStep(-1);showMedia();}
 
 window.onload=()=>loadInfo(getQueryParam('folder'));
 </script>
