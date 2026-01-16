@@ -2,7 +2,10 @@
   "title": "Implant",
   "image": "content/Implant/image.png",
   "gallery": [
-    "content/Implant/gallery/image.png"
+    "content/Implant/gallery/image.png",
+    "content/Implant/gallery/image2.png",
+    "content/Implant/gallery/image3.png",
+    "content/Implant/gallery/image4.png"
   ],
   "description": ""
 }
