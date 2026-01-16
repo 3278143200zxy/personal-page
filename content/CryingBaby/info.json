@@ -2,7 +2,12 @@
   "title": "Crying Baby",
   "image": "content/CryingBaby/image.png",
   "gallery": [
-    "content/CryingBaby/gallery/image.png"
+    "content/CryingBaby/gallery/image.png",
+    "content/CryingBaby/gallery/image2.png",
+    "content/CryingBaby/gallery/image3.png",
+    "content/CryingBaby/gallery/image4.png",
+    "content/CryingBaby/gallery/image5.png",
+    "content/CryingBaby/gallery/image6.png"
   ],
   "description": ""
 }

@@ -2,7 +2,11 @@
   "title": "Endless Soul",
   "image": "content/EndlessSoul/image.png",
   "gallery": [
-    "content/EndlessSoul/gallery/image.png"
+    "content/EndlessSoul/gallery/image.png",
+    "content/EndlessSoul/gallery/image2.png",
+    "content/EndlessSoul/gallery/image3.png",
+    "content/EndlessSoul/gallery/image4.png",
+    "content/EndlessSoul/gallery/image5.png"
   ],
   "description": ""
 }
